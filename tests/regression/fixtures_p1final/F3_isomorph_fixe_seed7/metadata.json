@@ -1,0 +1,355 @@
+{
+  "generator": "isomorph-reborn-bloc1",
+  "version": "1.2.0",
+  "config": {
+    "nScenarios": 30,
+    "seed": 7,
+    "warmupDays": 10,
+    "horizonDays": 60,
+    "disruptionTypes": [
+      "panne_fournisseur",
+      "coupure_lien",
+      "fermeture_entrepot",
+      "pic_demande",
+      "congestion"
+    ],
+    "params": {
+      "network": {
+        "nFactories": 3,
+        "nWarehouses": 9,
+        "factoryCapacityMin": 200,
+        "factoryCapacityMax": 320,
+        "primaryEdgeCapacityMin": 60,
+        "primaryEdgeCapacityMax": 110,
+        "secondaryEdgeCapacityMin": 15,
+        "secondaryEdgeCapacityMax": 35,
+        "tertiaryEdgeCapacityMin": 10,
+        "tertiaryEdgeCapacityMax": 20,
+        "warehouseShipCapacityMin": 50,
+        "warehouseShipCapacityMax": 100,
+        "importantShareMin": 0.15,
+        "importantShareMax": 0.45,
+        "demandNoiseMin": 0.03,
+        "demandNoiseMax": 0.08
+      },
+      "disruption": {
+        "severityMin": 0.5,
+        "severityMax": 1,
+        "binarySeverityMin": 0.8,
+        "binarySeverityMax": 1,
+        "durationMinDays": 3,
+        "durationMaxDays": 15,
+        "picDemandeAmplificationAtMaxSeverity": 2,
+        "coupureLienWarehouseFrictionPct": 0.7,
+        "coupureLienOtherEdgesFrictionPct": 0.3,
+        "coupureLienPrimaryEdgeProbability": 0.75
+      },
+      "demand": {
+        "utilizationMin": 0.85,
+        "utilizationMax": 1.15,
+        "warmupSafetyMargin": 0.995
+      },
+      "decisions": {
+        "d1_factoryBoostPct": 0.2,
+        "d2_warehouseBoostPct": 0.25,
+        "d3_recoveryFraction": 0.5,
+        "d4_recoveryFraction": 0.5,
+        "d5_globalBoostPct": 0.15,
+        "d6_stockBoostShareOfDemand": 0.3,
+        "d6_depletionDays": 10,
+        "d7_recoveryFraction": 0.2,
+        "d8_regularDemandCutPct": 0.25,
+        "d9_regularDemandDeferPct": 0.3
+      },
+      "profiles": {
+        "reactif": {
+          "detectionThreshold": 0.97,
+          "smoothingWindowDays": 1,
+          "decisionDelayDays": 1,
+          "reevaluationDays": 2,
+          "escalationOrder": [
+            "D1",
+            "D2",
+            "D4",
+            "D3",
+            "D5",
+            "D8",
+            "D9",
+            "D6",
+            "D7"
+          ]
+        },
+        "prudent": {
+          "detectionThreshold": 0.92,
+          "smoothingWindowDays": 4,
+          "decisionDelayDays": 3,
+          "reevaluationDays": 5,
+          "escalationOrder": [
+            "D6",
+            "D7",
+            "D3",
+            "D4",
+            "D1",
+            "D2",
+            "D5",
+            "D8",
+            "D9"
+          ]
+        },
+        "tardif": {
+          "detectionThreshold": 0.85,
+          "smoothingWindowDays": 6,
+          "decisionDelayDays": 6,
+          "reevaluationDays": 8,
+          "escalationOrder": [
+            "D8",
+            "D9",
+            "D5",
+            "D6",
+            "D1",
+            "D2",
+            "D3",
+            "D4",
+            "D7"
+          ]
+        }
+      },
+      "indicators": {
+        "importantWeight": 3,
+        "recoveryThreshold": 0.98
+      },
+      "flow": {
+        "maxIterations": 5000
+      }
+    },
+    "network": {
+      "kind": "explicite",
+      "document": {
+        "format": "isomorph-reborn-network",
+        "format_version": "1.0",
+        "id": "isomorph-originel",
+        "name": "Réseau ISOMORPH d'origine (13 villes, 16 arcs)",
+        "description": "Réseau ISOMORPH d'origine. Arcs : volume d'un conteneur x conteneurs par jour, plage de plus ou moins 0 %. Sources : somme de leurs arcs sortants x 1. Dernier kilomètre : 3000 unités par jour.",
+        "source": "tuhinsahai/ISOMORPH, simulator/Supplychaingeo_item50.py",
+        "provenance": {
+          "kind": "preset",
+          "preset": "isomorph-originel",
+          "options": {
+            "arcRangePct": 0,
+            "sourceFactor": 1,
+            "lastMileCapacity": 3000
+          }
+        },
+        "nodes": [
+          {
+            "id": "SanFrancisco",
+            "type": "usine",
+            "name": "SanFrancisco",
+            "capacity": 15000
+          },
+          {
+            "id": "StLouis",
+            "type": "usine",
+            "name": "StLouis",
+            "capacity": 15000
+          },
+          {
+            "id": "Orlando",
+            "type": "usine",
+            "name": "Orlando",
+            "capacity": 15000
+          },
+          {
+            "id": "Nashville",
+            "type": "hub",
+            "name": "Nashville",
+            "capacity": null
+          },
+          {
+            "id": "Atlanta",
+            "type": "entrepot",
+            "name": "Atlanta",
+            "capacity": null
+          },
+          {
+            "id": "Chicago",
+            "type": "entrepot",
+            "name": "Chicago",
+            "capacity": null
+          },
+          {
+            "id": "Charlotte",
+            "type": "entrepot",
+            "name": "Charlotte",
+            "capacity": null
+          },
+          {
+            "id": "Memphis",
+            "type": "entrepot",
+            "name": "Memphis",
+            "capacity": null
+          },
+          {
+            "id": "Columbus",
+            "type": "entrepot",
+            "name": "Columbus",
+            "capacity": null
+          },
+          {
+            "id": "Richmond",
+            "type": "entrepot",
+            "name": "Richmond",
+            "capacity": null
+          },
+          {
+            "id": "Philadelphia",
+            "type": "entrepot",
+            "name": "Philadelphia",
+            "capacity": null
+          },
+          {
+            "id": "Baltimore",
+            "type": "entrepot",
+            "name": "Baltimore",
+            "capacity": null
+          },
+          {
+            "id": "NewYork",
+            "type": "client",
+            "name": "NewYork"
+          }
+        ],
+        "edges": [
+          {
+            "from": "SanFrancisco",
+            "to": "Nashville",
+            "capacity": 15000,
+            "travel_time_days": 4,
+            "container_volume": 5000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "StLouis",
+            "to": "Nashville",
+            "capacity": 15000,
+            "travel_time_days": 2,
+            "container_volume": 5000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Orlando",
+            "to": "Nashville",
+            "capacity": 15000,
+            "travel_time_days": 2,
+            "container_volume": 5000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Nashville",
+            "to": "Atlanta",
+            "capacity": 45000,
+            "travel_time_days": 1,
+            "container_volume": 15000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Atlanta",
+            "to": "Chicago",
+            "capacity": 12000,
+            "travel_time_days": 8,
+            "container_volume": 4000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Atlanta",
+            "to": "Charlotte",
+            "capacity": 12000,
+            "travel_time_days": 7,
+            "container_volume": 4000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Atlanta",
+            "to": "Memphis",
+            "capacity": 12000,
+            "travel_time_days": 7,
+            "container_volume": 4000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Chicago",
+            "to": "Columbus",
+            "capacity": 12000,
+            "travel_time_days": 2,
+            "container_volume": 4000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Charlotte",
+            "to": "Richmond",
+            "capacity": 12000,
+            "travel_time_days": 2,
+            "container_volume": 4000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Columbus",
+            "to": "Philadelphia",
+            "capacity": 12000,
+            "travel_time_days": 2,
+            "container_volume": 4000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Richmond",
+            "to": "Philadelphia",
+            "capacity": 12000,
+            "travel_time_days": 1,
+            "container_volume": 4000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Richmond",
+            "to": "Baltimore",
+            "capacity": 9000,
+            "travel_time_days": 3,
+            "container_volume": 3000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Columbus",
+            "to": "Baltimore",
+            "capacity": 9000,
+            "travel_time_days": 3,
+            "container_volume": 3000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Memphis",
+            "to": "Baltimore",
+            "capacity": 9000,
+            "travel_time_days": 2,
+            "container_volume": 3000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Philadelphia",
+            "to": "NewYork",
+            "capacity": 3000,
+            "travel_time_days": 1,
+            "container_volume": 1000,
+            "containers_per_day": 3
+          },
+          {
+            "from": "Baltimore",
+            "to": "NewYork",
+            "capacity": 3000,
+            "travel_time_days": 2,
+            "container_volume": 1000,
+            "containers_per_day": 3
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+scenario_id,type,start,duration,severity,target
+S0001,pic_demande,0,3,0.805310,NewYork (demande)
+S0002,coupure_lien,0,5,0.882572,Atlanta->Charlotte
+S0003,pic_demande,0,13,0.995728,NewYork (demande)
+S0004,coupure_lien,0,14,0.988859,Atlanta->Memphis
+S0005,panne_fournisseur,0,6,0.670260,SanFrancisco
+S0006,fermeture_entrepot,0,9,0.902490,Memphis
+S0007,fermeture_entrepot,0,13,0.919272,Charlotte
+S0008,congestion,0,11,0.721875,réseau (congestion générale)
+S0009,fermeture_entrepot,0,15,0.875814,Richmond
+S0010,panne_fournisseur,0,11,0.941255,StLouis
+S0011,congestion,0,9,0.797411,réseau (congestion générale)
+S0012,panne_fournisseur,0,5,0.665280,Orlando
+S0013,congestion,0,11,0.918836,réseau (congestion générale)
+S0014,fermeture_entrepot,0,9,0.827092,Charlotte
+S0015,fermeture_entrepot,0,12,0.819410,Baltimore
+S0016,panne_fournisseur,0,9,0.578863,SanFrancisco
+S0017,fermeture_entrepot,0,5,0.869315,Columbus
+S0018,coupure_lien,0,9,0.924038,Chicago->Columbus
+S0019,fermeture_entrepot,0,8,0.909278,Chicago
+S0020,pic_demande,0,10,0.777625,NewYork (demande)
+S0021,coupure_lien,0,15,0.816386,Nashville->Atlanta
+S0022,fermeture_entrepot,0,5,0.852566,Philadelphia
+S0023,panne_fournisseur,0,10,0.928180,StLouis
+S0024,congestion,0,15,0.895340,réseau (congestion générale)
+S0025,panne_fournisseur,0,13,0.646617,Orlando
+S0026,congestion,0,14,0.794524,réseau (congestion générale)
+S0027,fermeture_entrepot,0,5,0.903926,Nashville
+S0028,coupure_lien,0,13,0.936187,Atlanta->Memphis
+S0029,pic_demande,0,10,0.948044,NewYork (demande)
+S0030,pic_demande,0,3,0.773345,NewYork (demande)
+S0031,pic_demande,0,12,0.897868,NewYork (demande)
+S0032,congestion,0,14,0.761940,réseau (congestion générale)
+S0033,coupure_lien,0,14,0.811468,Columbus->Baltimore
+S0034,fermeture_entrepot,0,14,0.815087,Chicago
+S0035,pic_demande,0,12,0.960979,NewYork (demande)
+S0036,fermeture_entrepot,0,12,0.844331,Charlotte
+S0037,fermeture_entrepot,0,9,0.834395,Chicago
+S0038,coupure_lien,0,11,0.867448,Nashville->Atlanta
+S0039,coupure_lien,0,13,0.913895,Memphis->Baltimore
+S0040,coupure_lien,0,10,0.901036,Columbus->Baltimore
+S0041,pic_demande,0,9,0.730819,NewYork (demande)
+S0042,panne_fournisseur,0,12,0.571909,Orlando
+S0043,fermeture_entrepot,0,6,0.936496,Nashville
+S0044,panne_fournisseur,0,4,0.708765,SanFrancisco
+S0045,fermeture_entrepot,0,6,0.984482,Baltimore
+S0046,pic_demande,0,9,0.612726,NewYork (demande)
+S0047,congestion,0,13,0.836869,réseau (congestion générale)
+S0048,pic_demande,0,5,0.838744,NewYork (demande)
+S0049,congestion,0,7,0.543935,réseau (congestion générale)
+S0050,coupure_lien,0,9,0.892523,Richmond->Philadelphia

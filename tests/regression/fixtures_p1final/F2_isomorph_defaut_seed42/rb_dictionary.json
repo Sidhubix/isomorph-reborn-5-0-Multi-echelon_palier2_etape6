@@ -1,0 +1,746 @@
+{
+  "title": "Dictionnaire des variables & Métadonnées d'apprentissage - Réseau Bayésien de Résilience",
+  "description": "Description exhaustive et pédagogique pour chaque en-tête du fichier CSV d'entraînement (rb_training) : signification métier (logistique, transport, gestion des opérations), type de données, format/unité et impact direct sur le plan d'expérience.",
+  "version": "1.2.0",
+  "seed": 42,
+  "execution_context": {
+    "scenarios_count": 50,
+    "total_couples": 200,
+    "warmup_days_nominal": 10,
+    "horizon_days_nominal": 60,
+    "pr_thresholds": {
+      "seuil_bas": 1.005,
+      "seuil_haut": 1.0214,
+      "type": "terciles_empiriques_du_run",
+      "classification_rule": "faible si PR < seuil_bas, eleve si PR > seuil_haut, sinon moyen"
+    }
+  },
+  "total_columns": 40,
+  "columns": [
+    {
+      "name": "scenario_id",
+      "label": "Identifiant du scénario",
+      "category": "Structure du plan d'expérience",
+      "dataType": "string",
+      "unitOrFormat": "ex: SC-001",
+      "explanation": "Code unique identifiant chaque configuration aléatoire de réseau et d'aléa dans le générateur stochastique.",
+      "planImpact": "Sert de clé de partitionnement pour isoler les conditions de base du réseau et mesurer la variance stochastique à travers le plan d'expérience."
+    },
+    {
+      "name": "branch_id",
+      "label": "Branche de gestion opérationnelle",
+      "category": "Structure du plan d'expérience",
+      "dataType": "string",
+      "unitOrFormat": "none | reactif | prudent | passif",
+      "explanation": "Politique de réponse managériale simulée en parallèle face au même choc (aucune réaction, intervention rapide, intervention prudente, intervention tardive).",
+      "planImpact": "Facteur contrôlé permettant de mesurer rigoureusement l'effet causal ceteris paribus (toutes choses égales par ailleurs) de la prise de décision sur la trajectoire de résilience."
+    },
+    {
+      "name": "n_factories",
+      "label": "Nombre d'usines actives",
+      "category": "Structure physique du réseau",
+      "dataType": "integer",
+      "unitOrFormat": "usines (ex: 3)",
+      "explanation": "Nombre de sites industriels alimentant le réseau logistique et expédiant des biens vers les entrepôts.",
+      "planImpact": "Détermine la redondance de production amont. Un nombre réduit d'usines concentre le risque; plus d'usines offre des opportunités de report de charge lors d'une panne."
+    },
+    {
+      "name": "n_warehouses",
+      "label": "Nombre d'entrepôts intermédiaires",
+      "category": "Structure physique du réseau",
+      "dataType": "integer",
+      "unitOrFormat": "entrepôts (ex: 9)",
+      "explanation": "Nombre de plates-formes logistiques de distribution recevant les flux industriels et expédiant vers le marché client final.",
+      "planImpact": "Conditionne le maillage et le stock tampon intermédiaire. Un réseau plus étendu offre davantage de flexibilité de contournement mais complexifie le pilotage."
+    },
+    {
+      "name": "base_demand",
+      "label": "Demande moyenne journalière de base",
+      "category": "Conditions de marché",
+      "dataType": "float",
+      "unitOrFormat": "unités/jour (ex: 100)",
+      "explanation": "Volume moyen journalier commandé par le marché client de référence (New York) en régime stabilisé.",
+      "planImpact": "Fixe le niveau de charge et de tension moyen du réseau. Une demande élevée pousse le système proche de sa saturation avant même la survenue d'un aléa.",
+      "sample_value": 12126
+    },
+    {
+      "name": "important_share",
+      "label": "Part des flux prioritaires",
+      "category": "Conditions de marché",
+      "dataType": "float",
+      "unitOrFormat": "ratio [0, 1] (ex: 0.25)",
+      "explanation": "Proportion de clients ou de commandes bénéficiant d'un traitement prioritaire contractuel (SLA renforcé).",
+      "planImpact": "Guide l'arbitrage d'allocation en situation de pénurie. Une part élevée contraint fortement les expéditions résiduelles et réduit la marge de manœuvre."
+    },
+    {
+      "name": "warmup_days",
+      "label": "Période de chauffe (Warm-up)",
+      "category": "Paramètres temporels du plan",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 30)",
+      "explanation": "Nombre de jours initiaux sans aléa permettant aux flux de remplir les tuyaux de transport et de stabiliser les stocks.",
+      "planImpact": "Élimine les artéfacts transitoires de démarrage de la simulation (stocks vides ou en transit initial) pour garantir que le choc frappe un régime permanent sain.",
+      "sample_value": 10
+    },
+    {
+      "name": "horizon_days",
+      "label": "Horizon total de simulation",
+      "category": "Paramètres temporels du plan",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 120)",
+      "explanation": "Durée totale observée de la simulation après la période de chauffe.",
+      "planImpact": "Dimensionne la fenêtre d'observation de crise. Doit être suffisamment long pour observer le retour complet à l'équilibre (rémission totale et fin des séquelles).",
+      "sample_value": 60
+    },
+    {
+      "name": "disruption_type",
+      "label": "Typologie de la perturbation",
+      "category": "Caractérisation du choc",
+      "dataType": "string",
+      "unitOrFormat": "usine | lien | entrepot | demande | congestion",
+      "explanation": "Nature de l'aléa survenu (panne de ligne d'usine, coupure d'axe de transport, fermeture d'entrepôt, pic brutal de demande, engorgement général).",
+      "planImpact": "Variable de cause racine permettant au réseau bayésien d'apprendre la vulnérabilité différentielle du réseau selon la localisation du choc."
+    },
+    {
+      "name": "disruption_start",
+      "label": "Jour de début du choc",
+      "category": "Caractérisation du choc",
+      "dataType": "integer",
+      "unitOrFormat": "jour relatif (ex: 15)",
+      "explanation": "Jour de calendrier relatif (après le warm-up) auquel la perturbation commence à impacter le réseau.",
+      "planImpact": "Définit l'origine temporelle locale (x = 0) servant de référence au modèle mathématique p(x) et au calage de la résilience."
+    },
+    {
+      "name": "disruption_duration",
+      "label": "Durée active de la perturbation",
+      "category": "Caractérisation du choc",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 10)",
+      "explanation": "Nombre de jours pendant lesquels la contrainte physique reste active avant résolution technique.",
+      "planImpact": "Éprouve la capacité d'endurance du réseau : un choc court est amorti par les stocks tampons, un choc prolongé force une reconfiguration des flux."
+    },
+    {
+      "name": "disruption_severity",
+      "label": "Sévérité du choc",
+      "category": "Caractérisation du choc",
+      "dataType": "float",
+      "unitOrFormat": "ratio [0, 1] (ex: 0.60)",
+      "explanation": "Fraction de capacité anéantie sur l'élément touché (ex: 0.60 = 60% de débit en moins) ou facteur de surchauffe de la demande.",
+      "planImpact": "Conditionne directement l'amplitude h du creux de performance. Détermine si le choc reste superficiel ou s'il pousse le réseau au bord de la rupture."
+    },
+    {
+      "name": "disruption_target",
+      "label": "Cible précise de la perturbation",
+      "category": "Caractérisation du choc",
+      "dataType": "string",
+      "unitOrFormat": "ex: Usine 1, Lien U2-E1",
+      "explanation": "Composant matériel ou liaison spécifique directement visé par l'avarie.",
+      "planImpact": "Permet d'évaluer la criticité nodale du réseau dans le plan d'expérience (identifier les maillons faibles à haute valeur de dépendance)."
+    },
+    {
+      "name": "management_profile",
+      "label": "Profil comportemental du gestionnaire",
+      "category": "Gouvernance & Profil de gestion",
+      "dataType": "string",
+      "unitOrFormat": "none | reactif | prudent | passif",
+      "explanation": "Attitude managériale face à l'incident : vitesse de réaction, propension au risque et seuils d'intervention appliqués.",
+      "planImpact": "Variable décisionnelle maîtresse : quantifie dans le modèle bayésien le bénéfice net d'une cellule de crise agile par rapport à une gestion passive."
+    },
+    {
+      "name": "detection_threshold",
+      "label": "Seuil d'alerte de la cellule de veille",
+      "category": "Gouvernance & Profil de gestion",
+      "dataType": "float",
+      "unitOrFormat": "ratio [0, 1] (ex: 0.05)",
+      "explanation": "Perte de taux de service minimale déclenchant la convocation de la cellule de crise.",
+      "planImpact": "Arbitrage opérationnel de surveillance : un seuil bas détecte vite les signaux faibles mais peut surréagir; un seuil haut retarde l'action."
+    },
+    {
+      "name": "decision_delay_days",
+      "label": "Délai administratif de décision",
+      "category": "Gouvernance & Profil de gestion",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 2)",
+      "explanation": "Temps nécessaire pour valider collégialement les contre-mesures et engager les budgets exceptionnels.",
+      "planImpact": "Représente l'inertie de gouvernance. Chaque jour de retard allonge le temps de convalescence d et augmente la perte cumulative IPC."
+    },
+    {
+      "name": "reevaluation_days",
+      "label": "Période de réévaluation de crise",
+      "category": "Gouvernance & Profil de gestion",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 3)",
+      "explanation": "Fréquence à laquelle la cellule de crise réexamine la situation pour réajuster ou intensifier les actions.",
+      "planImpact": "Pilote la flexibilité en boucle fermée. Une réévaluation régulière évite l'enlisement si la première vague de décisions s'avère insuffisante."
+    },
+    {
+      "name": "detected_day_rel",
+      "label": "Jour relatif de première détection",
+      "category": "Historique d'exécution de crise",
+      "dataType": "float",
+      "unitOrFormat": "jour relatif (ex: 16.0)",
+      "explanation": "Jour auquel la perte de service a dépassé le seuil d'alerte et a été formellement enregistrée.",
+      "planImpact": "Mesure la réactivité réelle du système d'information logistique en fonction de la vitesse de propagation du choc."
+    },
+    {
+      "name": "reaction_lag_days",
+      "label": "Retard de mise en œuvre (Lag)",
+      "category": "Historique d'exécution de crise",
+      "dataType": "float",
+      "unitOrFormat": "jours (ex: 2.3)",
+      "explanation": "Délai moyen constaté entre la détection de l'anomalie et l'application effective des décisions sur le terrain.",
+      "planImpact": "Facteur clé de dégradation : un lag opérationnel élevé est le premier responsable de l'aggravation des ruptures de stock."
+    },
+    {
+      "name": "nb_decisions",
+      "label": "Nombre de décisions exécutées",
+      "category": "Historique d'exécution de crise",
+      "dataType": "integer",
+      "unitOrFormat": "nombre (ex: 3)",
+      "explanation": "Nombre total de mesures d'atténuation prises tout au long de la gestion de l'incident.",
+      "planImpact": "Mesure l'effort managérial déployé. Permet de comparer le ratio coût d'intervention / gain de taux de service."
+    },
+    {
+      "name": "family_capacite_used",
+      "label": "Levier d'extension de capacité activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Recours aux heures supplémentaires, lignes industrielles d'appoint ou augmentation de cadence.",
+      "planImpact": "Évalue l'efficacité de la réserve de capacité industrielle pour résorber les arriérés de commandes."
+    },
+    {
+      "name": "family_reroutage_used",
+      "label": "Levier de reroutage des flux activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Contournement des axes coupés via des itinéraires routiers de substitution et des transporteurs alternatifs.",
+      "planImpact": "Mesure la valeur de l'agilité de transport et des plans de continuité logistique (PRA/PCA transport)."
+    },
+    {
+      "name": "family_sourcing_used",
+      "label": "Levier de sourcing d'appoint activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Appel à des fournisseurs de secours ou réallocation des approvisionnements vers des usines partenaires.",
+      "planImpact": "Vérifie l'avantage d'une politique de multi-sourcing pour pallier l'indisponibilité d'un site de production majeur."
+    },
+    {
+      "name": "family_demande_used",
+      "label": "Levier de régulation de la demande activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Négociation de reports de livraison, lissage des commandes ou rationnement temporaire des volumes non critiques.",
+      "planImpact": "Démontre le pouvoir protecteur de la gestion commerciale de crise pour préserver les flux des clients vitaux."
+    },
+    {
+      "name": "family_stock_used",
+      "label": "Levier de déstockage d'urgence activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Mobilisation des stocks de sécurité et transferts exceptionnels de stocks entre entrepôts.",
+      "planImpact": "Illustre le rôle d'amortisseur d'urgence des stocks de sécurité pendant les premières journées de tension."
+    },
+    {
+      "name": "ip_k",
+      "label": "Paramètre k (Niveau de base initial)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "taux [0, 1] (ex: 0.9850)",
+      "explanation": "Niveau asymptotique de performance du réseau avant l'apparition de la perturbation.",
+      "planImpact": "Point d'ancrage nominal : garantit que la résilience est quantifiée relativement à l'état réel du réseau pré-crise."
+    },
+    {
+      "name": "ip_q",
+      "label": "Paramètre q (Décalage de niveau final)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "écart [-1, 1] (ex: 0.0250)",
+      "explanation": "Écart entre le niveau initial de base et le niveau stabilisé post-crise (q = k - p_final).",
+      "planImpact": "Indicateur clé de séquelles permanentes (q > 0 : pertes de clients ou de cadence durables; q < 0 : antifragilité et sur-performance)."
+    },
+    {
+      "name": "ip_h",
+      "label": "Paramètre h (Amplitude de dégradation)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "amplitude [0, 1] (ex: 0.4200)",
+      "explanation": "Chute maximale théorique de performance modélisée au fond du creux de crise.",
+      "planImpact": "Définit le plancher de crise (creux = k - h/2 - q/2). Révèle la vulnérabilité immédiate de la supply chain face au choc."
+    },
+    {
+      "name": "ip_g",
+      "label": "Paramètre g (Centre de la phase de descente)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "jours relatifs au choc (ex: 2.1500)",
+      "explanation": "Moment où le réseau subit le taux de chute le plus violent dans le repère temporel x = t - t_choc.",
+      "planImpact": "Mesure la vitesse d'impact du choc dans le réseau (court si l'impact est instantané, plus long si les stocks absorbent au début)."
+    },
+    {
+      "name": "ip_d",
+      "label": "Paramètre d (Écart temporel dégradation-rebond)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "jours (ex: 7.2000)",
+      "explanation": "Durée de convalescence séparant le centre de la phase de chute et le centre de la phase de rebond (g + d).",
+      "planImpact": "Mesure l'endurance et la durée d'enlisement : un d élevé indique que le réseau reste longtemps au ralenti avant de remonter."
+    },
+    {
+      "name": "ip_alpha",
+      "label": "Paramètre alpha (Pente d'effondrement)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "sans unité [0.5, 20] (ex: 1.8500)",
+      "explanation": "Brutalité de la perte de performance lors de l'arrivée du choc.",
+      "planImpact": "Distingue les effondrements instantanés (alpha élevé) des dégradations lentes par épuisement progressif des stocks tampons."
+    },
+    {
+      "name": "ip_beta",
+      "label": "Paramètre beta (Pente de redressement)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "sans unité [0.5, 20] (ex: 1.4500)",
+      "explanation": "Vivacité de la reprise des livraisons une fois les décisions d'atténuation actives.",
+      "planImpact": "Caractérise la force de frappe opérationnelle pour rétablir les opérations normales."
+    },
+    {
+      "name": "fit_r2",
+      "label": "Coefficient R² brut",
+      "category": "Qualité statistique d'ajustement",
+      "dataType": "float",
+      "unitOrFormat": "score [0, 1] (ex: 0.8650)",
+      "explanation": "Qualité d'adhérence du modèle p(x) calculée point par point contre les observations journalières brutes.",
+      "planImpact": "Contrôle qualité initial du calage mathématique de la courbe."
+    },
+    {
+      "name": "fit_r2_smooth",
+      "label": "Coefficient R² lissé (Moyenne mobile 5j)",
+      "category": "Qualité statistique d'ajustement",
+      "dataType": "float",
+      "unitOrFormat": "score [0, 1] (ex: 0.9420)",
+      "explanation": "Mesure de conformité du modèle à la tendance de fond hebdomadaire (semaine ouvrée), débarrassée du bruit journalier.",
+      "planImpact": "Métrique reine d'acceptation : une valeur ≥ 0.90 garantit que les indicateurs de résilience sont robustes et exploitables sans risque de sur-apprentissage."
+    },
+    {
+      "name": "fit_rmse",
+      "label": "Erreur RMSE",
+      "category": "Qualité statistique d'ajustement",
+      "dataType": "float",
+      "unitOrFormat": "points d'IP (ex: 0.0310)",
+      "explanation": "Écart moyen quadratique entre la courbe p(x) et le taux de service observé.",
+      "planImpact": "Quantifie la marge d'incertitude en pourcents de taux de service (ex: 0.031 = 3.1% d'écart moyen)."
+    },
+    {
+      "name": "IPC",
+      "label": "IPC - Indice de Perte Cumulative",
+      "category": "Indicateurs de Résilience (KPIs)",
+      "dataType": "float",
+      "unitOrFormat": "surface cumulée (jours-unités) (ex: 3.4500)",
+      "explanation": "Surface totale intégrée de déficit de performance sous le niveau de référence nominal au cours de la crise.",
+      "planImpact": "KPI financier et d'exploitation numéro 1 : exprime la somme des jours-commandes non livrés et des pénalités clients encourues."
+    },
+    {
+      "name": "TRP",
+      "label": "TRP - Temps de Récupération des Performances",
+      "category": "Indicateurs de Résilience (KPIs)",
+      "dataType": "float",
+      "unitOrFormat": "jours (ex: 12.5000)",
+      "explanation": "Délai total nécessaire pour restaurer le taux de service à 90% de son niveau nominal pré-choc.",
+      "planImpact": "KPI contractuel d'engagement de service : mesure l'indisponibilité perçue par le client final."
+    },
+    {
+      "name": "CRD",
+      "label": "CRD - Capacité de Résilience Dynamique",
+      "category": "Indicateurs de Résilience (KPIs)",
+      "dataType": "float",
+      "unitOrFormat": "score sans unité (ex: 1.8200)",
+      "explanation": "Rapport entre la vitesse de redressement de la courbe et la profondeur de la perte subie.",
+      "planImpact": "Mesure la promptitude et l'efficacité de la reprise : un CRD élevé signale une organisation vive capable d'effacer rapidement les stigmates du choc."
+    },
+    {
+      "name": "PR",
+      "label": "PR - Potentiel de Récupération",
+      "category": "Indicateurs de Résilience (KPIs)",
+      "dataType": "float",
+      "unitOrFormat": "ratio sans unité (ex: 1.6500)",
+      "explanation": "Ratio entre le niveau final de service stabilisé et le niveau minimum atteint au fond du creux de crise.",
+      "planImpact": "Caractérise la dynamique de sortie de crise : démontre la capacité du réseau à s'extraire de la zone de danger."
+    },
+    {
+      "name": "PR_class",
+      "label": "Classe de Résilience PR (Cible Bayésienne)",
+      "category": "Cible d'Apprentissage Bayésien",
+      "dataType": "category",
+      "unitOrFormat": "faible | moyen | eleve",
+      "explanation": "Discrétisation de l'indicateur PR en 3 classes de performance de résilience (selon les terciles empiriques ou seuils d'experts).",
+      "planImpact": "Nœud cible principal (target variable) pour le réseau bayésien : permet de calculer les probabilités a priori et a posteriori de résilience de la supply chain."
+    }
+  ],
+  "by_header": {
+    "scenario_id": {
+      "name": "scenario_id",
+      "label": "Identifiant du scénario",
+      "category": "Structure du plan d'expérience",
+      "dataType": "string",
+      "unitOrFormat": "ex: SC-001",
+      "explanation": "Code unique identifiant chaque configuration aléatoire de réseau et d'aléa dans le générateur stochastique.",
+      "planImpact": "Sert de clé de partitionnement pour isoler les conditions de base du réseau et mesurer la variance stochastique à travers le plan d'expérience."
+    },
+    "branch_id": {
+      "name": "branch_id",
+      "label": "Branche de gestion opérationnelle",
+      "category": "Structure du plan d'expérience",
+      "dataType": "string",
+      "unitOrFormat": "none | reactif | prudent | passif",
+      "explanation": "Politique de réponse managériale simulée en parallèle face au même choc (aucune réaction, intervention rapide, intervention prudente, intervention tardive).",
+      "planImpact": "Facteur contrôlé permettant de mesurer rigoureusement l'effet causal ceteris paribus (toutes choses égales par ailleurs) de la prise de décision sur la trajectoire de résilience."
+    },
+    "n_factories": {
+      "name": "n_factories",
+      "label": "Nombre d'usines actives",
+      "category": "Structure physique du réseau",
+      "dataType": "integer",
+      "unitOrFormat": "usines (ex: 3)",
+      "explanation": "Nombre de sites industriels alimentant le réseau logistique et expédiant des biens vers les entrepôts.",
+      "planImpact": "Détermine la redondance de production amont. Un nombre réduit d'usines concentre le risque; plus d'usines offre des opportunités de report de charge lors d'une panne."
+    },
+    "n_warehouses": {
+      "name": "n_warehouses",
+      "label": "Nombre d'entrepôts intermédiaires",
+      "category": "Structure physique du réseau",
+      "dataType": "integer",
+      "unitOrFormat": "entrepôts (ex: 9)",
+      "explanation": "Nombre de plates-formes logistiques de distribution recevant les flux industriels et expédiant vers le marché client final.",
+      "planImpact": "Conditionne le maillage et le stock tampon intermédiaire. Un réseau plus étendu offre davantage de flexibilité de contournement mais complexifie le pilotage."
+    },
+    "base_demand": {
+      "name": "base_demand",
+      "label": "Demande moyenne journalière de base",
+      "category": "Conditions de marché",
+      "dataType": "float",
+      "unitOrFormat": "unités/jour (ex: 100)",
+      "explanation": "Volume moyen journalier commandé par le marché client de référence (New York) en régime stabilisé.",
+      "planImpact": "Fixe le niveau de charge et de tension moyen du réseau. Une demande élevée pousse le système proche de sa saturation avant même la survenue d'un aléa."
+    },
+    "important_share": {
+      "name": "important_share",
+      "label": "Part des flux prioritaires",
+      "category": "Conditions de marché",
+      "dataType": "float",
+      "unitOrFormat": "ratio [0, 1] (ex: 0.25)",
+      "explanation": "Proportion de clients ou de commandes bénéficiant d'un traitement prioritaire contractuel (SLA renforcé).",
+      "planImpact": "Guide l'arbitrage d'allocation en situation de pénurie. Une part élevée contraint fortement les expéditions résiduelles et réduit la marge de manœuvre."
+    },
+    "warmup_days": {
+      "name": "warmup_days",
+      "label": "Période de chauffe (Warm-up)",
+      "category": "Paramètres temporels du plan",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 30)",
+      "explanation": "Nombre de jours initiaux sans aléa permettant aux flux de remplir les tuyaux de transport et de stabiliser les stocks.",
+      "planImpact": "Élimine les artéfacts transitoires de démarrage de la simulation (stocks vides ou en transit initial) pour garantir que le choc frappe un régime permanent sain."
+    },
+    "horizon_days": {
+      "name": "horizon_days",
+      "label": "Horizon total de simulation",
+      "category": "Paramètres temporels du plan",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 120)",
+      "explanation": "Durée totale observée de la simulation après la période de chauffe.",
+      "planImpact": "Dimensionne la fenêtre d'observation de crise. Doit être suffisamment long pour observer le retour complet à l'équilibre (rémission totale et fin des séquelles)."
+    },
+    "disruption_type": {
+      "name": "disruption_type",
+      "label": "Typologie de la perturbation",
+      "category": "Caractérisation du choc",
+      "dataType": "string",
+      "unitOrFormat": "usine | lien | entrepot | demande | congestion",
+      "explanation": "Nature de l'aléa survenu (panne de ligne d'usine, coupure d'axe de transport, fermeture d'entrepôt, pic brutal de demande, engorgement général).",
+      "planImpact": "Variable de cause racine permettant au réseau bayésien d'apprendre la vulnérabilité différentielle du réseau selon la localisation du choc."
+    },
+    "disruption_start": {
+      "name": "disruption_start",
+      "label": "Jour de début du choc",
+      "category": "Caractérisation du choc",
+      "dataType": "integer",
+      "unitOrFormat": "jour relatif (ex: 15)",
+      "explanation": "Jour de calendrier relatif (après le warm-up) auquel la perturbation commence à impacter le réseau.",
+      "planImpact": "Définit l'origine temporelle locale (x = 0) servant de référence au modèle mathématique p(x) et au calage de la résilience."
+    },
+    "disruption_duration": {
+      "name": "disruption_duration",
+      "label": "Durée active de la perturbation",
+      "category": "Caractérisation du choc",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 10)",
+      "explanation": "Nombre de jours pendant lesquels la contrainte physique reste active avant résolution technique.",
+      "planImpact": "Éprouve la capacité d'endurance du réseau : un choc court est amorti par les stocks tampons, un choc prolongé force une reconfiguration des flux."
+    },
+    "disruption_severity": {
+      "name": "disruption_severity",
+      "label": "Sévérité du choc",
+      "category": "Caractérisation du choc",
+      "dataType": "float",
+      "unitOrFormat": "ratio [0, 1] (ex: 0.60)",
+      "explanation": "Fraction de capacité anéantie sur l'élément touché (ex: 0.60 = 60% de débit en moins) ou facteur de surchauffe de la demande.",
+      "planImpact": "Conditionne directement l'amplitude h du creux de performance. Détermine si le choc reste superficiel ou s'il pousse le réseau au bord de la rupture."
+    },
+    "disruption_target": {
+      "name": "disruption_target",
+      "label": "Cible précise de la perturbation",
+      "category": "Caractérisation du choc",
+      "dataType": "string",
+      "unitOrFormat": "ex: Usine 1, Lien U2-E1",
+      "explanation": "Composant matériel ou liaison spécifique directement visé par l'avarie.",
+      "planImpact": "Permet d'évaluer la criticité nodale du réseau dans le plan d'expérience (identifier les maillons faibles à haute valeur de dépendance)."
+    },
+    "management_profile": {
+      "name": "management_profile",
+      "label": "Profil comportemental du gestionnaire",
+      "category": "Gouvernance & Profil de gestion",
+      "dataType": "string",
+      "unitOrFormat": "none | reactif | prudent | passif",
+      "explanation": "Attitude managériale face à l'incident : vitesse de réaction, propension au risque et seuils d'intervention appliqués.",
+      "planImpact": "Variable décisionnelle maîtresse : quantifie dans le modèle bayésien le bénéfice net d'une cellule de crise agile par rapport à une gestion passive."
+    },
+    "detection_threshold": {
+      "name": "detection_threshold",
+      "label": "Seuil d'alerte de la cellule de veille",
+      "category": "Gouvernance & Profil de gestion",
+      "dataType": "float",
+      "unitOrFormat": "ratio [0, 1] (ex: 0.05)",
+      "explanation": "Perte de taux de service minimale déclenchant la convocation de la cellule de crise.",
+      "planImpact": "Arbitrage opérationnel de surveillance : un seuil bas détecte vite les signaux faibles mais peut surréagir; un seuil haut retarde l'action."
+    },
+    "decision_delay_days": {
+      "name": "decision_delay_days",
+      "label": "Délai administratif de décision",
+      "category": "Gouvernance & Profil de gestion",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 2)",
+      "explanation": "Temps nécessaire pour valider collégialement les contre-mesures et engager les budgets exceptionnels.",
+      "planImpact": "Représente l'inertie de gouvernance. Chaque jour de retard allonge le temps de convalescence d et augmente la perte cumulative IPC."
+    },
+    "reevaluation_days": {
+      "name": "reevaluation_days",
+      "label": "Période de réévaluation de crise",
+      "category": "Gouvernance & Profil de gestion",
+      "dataType": "integer",
+      "unitOrFormat": "jours (ex: 3)",
+      "explanation": "Fréquence à laquelle la cellule de crise réexamine la situation pour réajuster ou intensifier les actions.",
+      "planImpact": "Pilote la flexibilité en boucle fermée. Une réévaluation régulière évite l'enlisement si la première vague de décisions s'avère insuffisante."
+    },
+    "detected_day_rel": {
+      "name": "detected_day_rel",
+      "label": "Jour relatif de première détection",
+      "category": "Historique d'exécution de crise",
+      "dataType": "float",
+      "unitOrFormat": "jour relatif (ex: 16.0)",
+      "explanation": "Jour auquel la perte de service a dépassé le seuil d'alerte et a été formellement enregistrée.",
+      "planImpact": "Mesure la réactivité réelle du système d'information logistique en fonction de la vitesse de propagation du choc."
+    },
+    "reaction_lag_days": {
+      "name": "reaction_lag_days",
+      "label": "Retard de mise en œuvre (Lag)",
+      "category": "Historique d'exécution de crise",
+      "dataType": "float",
+      "unitOrFormat": "jours (ex: 2.3)",
+      "explanation": "Délai moyen constaté entre la détection de l'anomalie et l'application effective des décisions sur le terrain.",
+      "planImpact": "Facteur clé de dégradation : un lag opérationnel élevé est le premier responsable de l'aggravation des ruptures de stock."
+    },
+    "nb_decisions": {
+      "name": "nb_decisions",
+      "label": "Nombre de décisions exécutées",
+      "category": "Historique d'exécution de crise",
+      "dataType": "integer",
+      "unitOrFormat": "nombre (ex: 3)",
+      "explanation": "Nombre total de mesures d'atténuation prises tout au long de la gestion de l'incident.",
+      "planImpact": "Mesure l'effort managérial déployé. Permet de comparer le ratio coût d'intervention / gain de taux de service."
+    },
+    "family_capacite_used": {
+      "name": "family_capacite_used",
+      "label": "Levier d'extension de capacité activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Recours aux heures supplémentaires, lignes industrielles d'appoint ou augmentation de cadence.",
+      "planImpact": "Évalue l'efficacité de la réserve de capacité industrielle pour résorber les arriérés de commandes."
+    },
+    "family_reroutage_used": {
+      "name": "family_reroutage_used",
+      "label": "Levier de reroutage des flux activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Contournement des axes coupés via des itinéraires routiers de substitution et des transporteurs alternatifs.",
+      "planImpact": "Mesure la valeur de l'agilité de transport et des plans de continuité logistique (PRA/PCA transport)."
+    },
+    "family_sourcing_used": {
+      "name": "family_sourcing_used",
+      "label": "Levier de sourcing d'appoint activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Appel à des fournisseurs de secours ou réallocation des approvisionnements vers des usines partenaires.",
+      "planImpact": "Vérifie l'avantage d'une politique de multi-sourcing pour pallier l'indisponibilité d'un site de production majeur."
+    },
+    "family_demande_used": {
+      "name": "family_demande_used",
+      "label": "Levier de régulation de la demande activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Négociation de reports de livraison, lissage des commandes ou rationnement temporaire des volumes non critiques.",
+      "planImpact": "Démontre le pouvoir protecteur de la gestion commerciale de crise pour préserver les flux des clients vitaux."
+    },
+    "family_stock_used": {
+      "name": "family_stock_used",
+      "label": "Levier de déstockage d'urgence activé",
+      "category": "Actions de remédiation déclenchées",
+      "dataType": "binary",
+      "unitOrFormat": "1 (oui) ou 0 (non)",
+      "explanation": "Mobilisation des stocks de sécurité et transferts exceptionnels de stocks entre entrepôts.",
+      "planImpact": "Illustre le rôle d'amortisseur d'urgence des stocks de sécurité pendant les premières journées de tension."
+    },
+    "ip_k": {
+      "name": "ip_k",
+      "label": "Paramètre k (Niveau de base initial)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "taux [0, 1] (ex: 0.9850)",
+      "explanation": "Niveau asymptotique de performance du réseau avant l'apparition de la perturbation.",
+      "planImpact": "Point d'ancrage nominal : garantit que la résilience est quantifiée relativement à l'état réel du réseau pré-crise."
+    },
+    "ip_q": {
+      "name": "ip_q",
+      "label": "Paramètre q (Décalage de niveau final)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "écart [-1, 1] (ex: 0.0250)",
+      "explanation": "Écart entre le niveau initial de base et le niveau stabilisé post-crise (q = k - p_final).",
+      "planImpact": "Indicateur clé de séquelles permanentes (q > 0 : pertes de clients ou de cadence durables; q < 0 : antifragilité et sur-performance)."
+    },
+    "ip_h": {
+      "name": "ip_h",
+      "label": "Paramètre h (Amplitude de dégradation)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "amplitude [0, 1] (ex: 0.4200)",
+      "explanation": "Chute maximale théorique de performance modélisée au fond du creux de crise.",
+      "planImpact": "Définit le plancher de crise (creux = k - h/2 - q/2). Révèle la vulnérabilité immédiate de la supply chain face au choc."
+    },
+    "ip_g": {
+      "name": "ip_g",
+      "label": "Paramètre g (Centre de la phase de descente)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "jours relatifs au choc (ex: 2.1500)",
+      "explanation": "Moment où le réseau subit le taux de chute le plus violent dans le repère temporel x = t - t_choc.",
+      "planImpact": "Mesure la vitesse d'impact du choc dans le réseau (court si l'impact est instantané, plus long si les stocks absorbent au début)."
+    },
+    "ip_d": {
+      "name": "ip_d",
+      "label": "Paramètre d (Écart temporel dégradation-rebond)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "jours (ex: 7.2000)",
+      "explanation": "Durée de convalescence séparant le centre de la phase de chute et le centre de la phase de rebond (g + d).",
+      "planImpact": "Mesure l'endurance et la durée d'enlisement : un d élevé indique que le réseau reste longtemps au ralenti avant de remonter."
+    },
+    "ip_alpha": {
+      "name": "ip_alpha",
+      "label": "Paramètre alpha (Pente d'effondrement)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "sans unité [0.5, 20] (ex: 1.8500)",
+      "explanation": "Brutalité de la perte de performance lors de l'arrivée du choc.",
+      "planImpact": "Distingue les effondrements instantanés (alpha élevé) des dégradations lentes par épuisement progressif des stocks tampons."
+    },
+    "ip_beta": {
+      "name": "ip_beta",
+      "label": "Paramètre beta (Pente de redressement)",
+      "category": "Paramètres de la fonction hyperbolique p(x)",
+      "dataType": "float",
+      "unitOrFormat": "sans unité [0.5, 20] (ex: 1.4500)",
+      "explanation": "Vivacité de la reprise des livraisons une fois les décisions d'atténuation actives.",
+      "planImpact": "Caractérise la force de frappe opérationnelle pour rétablir les opérations normales."
+    },
+    "fit_r2": {
+      "name": "fit_r2",
+      "label": "Coefficient R² brut",
+      "category": "Qualité statistique d'ajustement",
+      "dataType": "float",
+      "unitOrFormat": "score [0, 1] (ex: 0.8650)",
+      "explanation": "Qualité d'adhérence du modèle p(x) calculée point par point contre les observations journalières brutes.",
+      "planImpact": "Contrôle qualité initial du calage mathématique de la courbe."
+    },
+    "fit_r2_smooth": {
+      "name": "fit_r2_smooth",
+      "label": "Coefficient R² lissé (Moyenne mobile 5j)",
+      "category": "Qualité statistique d'ajustement",
+      "dataType": "float",
+      "unitOrFormat": "score [0, 1] (ex: 0.9420)",
+      "explanation": "Mesure de conformité du modèle à la tendance de fond hebdomadaire (semaine ouvrée), débarrassée du bruit journalier.",
+      "planImpact": "Métrique reine d'acceptation : une valeur ≥ 0.90 garantit que les indicateurs de résilience sont robustes et exploitables sans risque de sur-apprentissage."
+    },
+    "fit_rmse": {
+      "name": "fit_rmse",
+      "label": "Erreur RMSE",
+      "category": "Qualité statistique d'ajustement",
+      "dataType": "float",
+      "unitOrFormat": "points d'IP (ex: 0.0310)",
+      "explanation": "Écart moyen quadratique entre la courbe p(x) et le taux de service observé.",
+      "planImpact": "Quantifie la marge d'incertitude en pourcents de taux de service (ex: 0.031 = 3.1% d'écart moyen)."
+    },
+    "IPC": {
+      "name": "IPC",
+      "label": "IPC - Indice de Perte Cumulative",
+      "category": "Indicateurs de Résilience (KPIs)",
+      "dataType": "float",
+      "unitOrFormat": "surface cumulée (jours-unités) (ex: 3.4500)",
+      "explanation": "Surface totale intégrée de déficit de performance sous le niveau de référence nominal au cours de la crise.",
+      "planImpact": "KPI financier et d'exploitation numéro 1 : exprime la somme des jours-commandes non livrés et des pénalités clients encourues."
+    },
+    "TRP": {
+      "name": "TRP",
+      "label": "TRP - Temps de Récupération des Performances",
+      "category": "Indicateurs de Résilience (KPIs)",
+      "dataType": "float",
+      "unitOrFormat": "jours (ex: 12.5000)",
+      "explanation": "Délai total nécessaire pour restaurer le taux de service à 90% de son niveau nominal pré-choc.",
+      "planImpact": "KPI contractuel d'engagement de service : mesure l'indisponibilité perçue par le client final."
+    },
+    "CRD": {
+      "name": "CRD",
+      "label": "CRD - Capacité de Résilience Dynamique",
+      "category": "Indicateurs de Résilience (KPIs)",
+      "dataType": "float",
+      "unitOrFormat": "score sans unité (ex: 1.8200)",
+      "explanation": "Rapport entre la vitesse de redressement de la courbe et la profondeur de la perte subie.",
+      "planImpact": "Mesure la promptitude et l'efficacité de la reprise : un CRD élevé signale une organisation vive capable d'effacer rapidement les stigmates du choc."
+    },
+    "PR": {
+      "name": "PR",
+      "label": "PR - Potentiel de Récupération",
+      "category": "Indicateurs de Résilience (KPIs)",
+      "dataType": "float",
+      "unitOrFormat": "ratio sans unité (ex: 1.6500)",
+      "explanation": "Ratio entre le niveau final de service stabilisé et le niveau minimum atteint au fond du creux de crise.",
+      "planImpact": "Caractérise la dynamique de sortie de crise : démontre la capacité du réseau à s'extraire de la zone de danger."
+    },
+    "PR_class": {
+      "name": "PR_class",
+      "label": "Classe de Résilience PR (Cible Bayésienne)",
+      "category": "Cible d'Apprentissage Bayésien",
+      "dataType": "category",
+      "unitOrFormat": "faible | moyen | eleve",
+      "explanation": "Discrétisation de l'indicateur PR en 3 classes de performance de résilience (selon les terciles empiriques ou seuils d'experts).",
+      "planImpact": "Nœud cible principal (target variable) pour le réseau bayésien : permet de calculer les probabilités a priori et a posteriori de résilience de la supply chain."
+    }
+  }
+}

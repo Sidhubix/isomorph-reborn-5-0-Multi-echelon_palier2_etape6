@@ -1,0 +1,31 @@
+scenario_id,type,start,duration,severity,target
+S0001,congestion,0,9,0.849514,réseau (congestion générale)
+S0002,fermeture_entrepot,0,12,0.865611,Memphis
+S0003,fermeture_entrepot,0,7,0.912527,Memphis
+S0004,fermeture_entrepot,0,14,0.878551,Philadelphia
+S0005,fermeture_entrepot,0,10,0.814898,Richmond
+S0006,pic_demande,0,4,0.650028,NewYork (demande)
+S0007,congestion,0,5,0.507770,réseau (congestion générale)
+S0008,panne_fournisseur,0,14,0.895290,SanFrancisco
+S0009,coupure_lien,0,5,0.961826,Columbus->Baltimore
+S0010,congestion,0,5,0.567838,réseau (congestion générale)
+S0011,congestion,0,13,0.943672,réseau (congestion générale)
+S0012,congestion,0,12,0.879384,réseau (congestion générale)
+S0013,coupure_lien,0,10,0.991487,Charlotte->Richmond
+S0014,fermeture_entrepot,0,9,0.911191,Memphis
+S0015,fermeture_entrepot,0,15,0.805616,Richmond
+S0016,panne_fournisseur,0,10,0.854919,StLouis
+S0017,panne_fournisseur,0,7,0.715885,SanFrancisco
+S0018,congestion,0,4,0.920228,réseau (congestion générale)
+S0019,congestion,0,4,0.628992,réseau (congestion générale)
+S0020,fermeture_entrepot,0,12,0.878621,Memphis
+S0021,coupure_lien,0,6,0.867857,Richmond->Baltimore
+S0022,coupure_lien,0,4,0.838065,Columbus->Philadelphia
+S0023,fermeture_entrepot,0,12,0.801610,Memphis
+S0024,fermeture_entrepot,0,13,0.862733,Baltimore
+S0025,coupure_lien,0,11,0.944973,Chicago->Columbus
+S0026,panne_fournisseur,0,13,0.570675,Orlando
+S0027,panne_fournisseur,0,12,0.956902,Orlando
+S0028,panne_fournisseur,0,14,0.677209,StLouis
+S0029,panne_fournisseur,0,14,0.547650,Orlando
+S0030,congestion,0,7,0.637187,réseau (congestion générale)

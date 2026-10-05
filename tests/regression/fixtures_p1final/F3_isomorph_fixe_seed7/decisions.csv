@@ -1,0 +1,10 @@
+scenario_id,branch_id,decision_id,family,day_rel,detected_day_rel
+S0004,reactif,D2,reroutage,13,5
+S0006,reactif,D5,capacite,1,0
+S0009,reactif,D1,reroutage,1,0
+S0012,reactif,D1,reroutage,1,0
+S0012,reactif,D2,reroutage,3,0
+S0018,reactif,D1,reroutage,1,0
+S0018,reactif,D2,reroutage,3,0
+S0019,reactif,D1,reroutage,1,0
+S0019,reactif,D2,reroutage,3,0
