@@ -1,0 +1,512 @@
+{
+  "0": {
+    "network": {
+      "nFactories": 3,
+      "nWarehouses": 9,
+      "factoryCapacityMin": 280,
+      "factoryCapacityMax": 400,
+      "primaryEdgeCapacityMin": 90,
+      "primaryEdgeCapacityMax": 150,
+      "secondaryEdgeCapacityMin": 35,
+      "secondaryEdgeCapacityMax": 65,
+      "tertiaryEdgeCapacityMin": 20,
+      "tertiaryEdgeCapacityMax": 40,
+      "warehouseShipCapacityMin": 80,
+      "warehouseShipCapacityMax": 140,
+      "importantShareMin": 0.1,
+      "importantShareMax": 0.3,
+      "demandNoiseMin": 0.01,
+      "demandNoiseMax": 0.03
+    },
+    "disruption": {
+      "severityMin": 0.15,
+      "severityMax": 0.35,
+      "binarySeverityMin": 0.3,
+      "binarySeverityMax": 0.5,
+      "durationMinDays": 1,
+      "durationMaxDays": 4,
+      "picDemandeAmplificationAtMaxSeverity": 1.25,
+      "coupureLienWarehouseFrictionPct": 0.2,
+      "coupureLienOtherEdgesFrictionPct": 0.08,
+      "coupureLienPrimaryEdgeProbability": 0.35
+    },
+    "demand": {
+      "utilizationMin": 0.55,
+      "utilizationMax": 0.75,
+      "warmupSafetyMargin": 0.95
+    },
+    "decisions": {
+      "d1_factoryBoostPct": 0.45,
+      "d2_warehouseBoostPct": 0.55,
+      "d3_recoveryFraction": 0.9,
+      "d4_recoveryFraction": 0.9,
+      "d5_globalBoostPct": 0.35,
+      "d6_stockBoostShareOfDemand": 0.55,
+      "d6_depletionDays": 18,
+      "d7_recoveryFraction": 0.45,
+      "d8_regularDemandCutPct": 0.45,
+      "d9_regularDemandDeferPct": 0.55
+    },
+    "profiles": {
+      "reactif": {
+        "detectionThreshold": 0.99,
+        "smoothingWindowDays": 1,
+        "decisionDelayDays": 0,
+        "reevaluationDays": 1,
+        "escalationOrder": [
+          "D1",
+          "D2",
+          "D4",
+          "D3",
+          "D5",
+          "D8",
+          "D9",
+          "D6",
+          "D7"
+        ]
+      },
+      "prudent": {
+        "detectionThreshold": 0.97,
+        "smoothingWindowDays": 2,
+        "decisionDelayDays": 1,
+        "reevaluationDays": 2,
+        "escalationOrder": [
+          "D6",
+          "D7",
+          "D3",
+          "D4",
+          "D1",
+          "D2",
+          "D5",
+          "D8",
+          "D9"
+        ]
+      },
+      "tardif": {
+        "detectionThreshold": 0.94,
+        "smoothingWindowDays": 3,
+        "decisionDelayDays": 2,
+        "reevaluationDays": 3,
+        "escalationOrder": [
+          "D8",
+          "D9",
+          "D5",
+          "D6",
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D7"
+        ]
+      }
+    }
+  },
+  "25": {
+    "network": {
+      "nFactories": 3,
+      "nWarehouses": 9,
+      "factoryCapacityMin": 240,
+      "factoryCapacityMax": 360,
+      "primaryEdgeCapacityMin": 75,
+      "primaryEdgeCapacityMax": 130,
+      "secondaryEdgeCapacityMin": 25,
+      "secondaryEdgeCapacityMax": 50,
+      "tertiaryEdgeCapacityMin": 15,
+      "tertiaryEdgeCapacityMax": 30,
+      "warehouseShipCapacityMin": 65,
+      "warehouseShipCapacityMax": 120,
+      "importantShareMin": 0.13,
+      "importantShareMax": 0.38,
+      "demandNoiseMin": 0.02,
+      "demandNoiseMax": 0.055
+    },
+    "disruption": {
+      "severityMin": 0.32,
+      "severityMax": 0.68,
+      "binarySeverityMin": 0.55,
+      "binarySeverityMax": 0.75,
+      "durationMinDays": 2,
+      "durationMaxDays": 10,
+      "picDemandeAmplificationAtMaxSeverity": 1.63,
+      "coupureLienWarehouseFrictionPct": 0.45,
+      "coupureLienOtherEdgesFrictionPct": 0.19,
+      "coupureLienPrimaryEdgeProbability": 0.55
+    },
+    "demand": {
+      "utilizationMin": 0.7,
+      "utilizationMax": 0.95,
+      "warmupSafetyMargin": 0.9725
+    },
+    "decisions": {
+      "d1_factoryBoostPct": 0.33,
+      "d2_warehouseBoostPct": 0.4,
+      "d3_recoveryFraction": 0.7,
+      "d4_recoveryFraction": 0.7,
+      "d5_globalBoostPct": 0.25,
+      "d6_stockBoostShareOfDemand": 0.43,
+      "d6_depletionDays": 14,
+      "d7_recoveryFraction": 0.33,
+      "d8_regularDemandCutPct": 0.35,
+      "d9_regularDemandDeferPct": 0.43
+    },
+    "profiles": {
+      "reactif": {
+        "detectionThreshold": 0.98,
+        "smoothingWindowDays": 1,
+        "decisionDelayDays": 1,
+        "reevaluationDays": 2,
+        "escalationOrder": [
+          "D1",
+          "D2",
+          "D4",
+          "D3",
+          "D5",
+          "D8",
+          "D9",
+          "D6",
+          "D7"
+        ]
+      },
+      "prudent": {
+        "detectionThreshold": 0.95,
+        "smoothingWindowDays": 3,
+        "decisionDelayDays": 2,
+        "reevaluationDays": 4,
+        "escalationOrder": [
+          "D6",
+          "D7",
+          "D3",
+          "D4",
+          "D1",
+          "D2",
+          "D5",
+          "D8",
+          "D9"
+        ]
+      },
+      "tardif": {
+        "detectionThreshold": 0.9,
+        "smoothingWindowDays": 5,
+        "decisionDelayDays": 4,
+        "reevaluationDays": 6,
+        "escalationOrder": [
+          "D8",
+          "D9",
+          "D5",
+          "D6",
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D7"
+        ]
+      }
+    }
+  },
+  "50": {
+    "network": {
+      "nFactories": 3,
+      "nWarehouses": 9,
+      "factoryCapacityMin": 200,
+      "factoryCapacityMax": 320,
+      "primaryEdgeCapacityMin": 60,
+      "primaryEdgeCapacityMax": 110,
+      "secondaryEdgeCapacityMin": 15,
+      "secondaryEdgeCapacityMax": 35,
+      "tertiaryEdgeCapacityMin": 10,
+      "tertiaryEdgeCapacityMax": 20,
+      "warehouseShipCapacityMin": 50,
+      "warehouseShipCapacityMax": 100,
+      "importantShareMin": 0.15,
+      "importantShareMax": 0.45,
+      "demandNoiseMin": 0.03,
+      "demandNoiseMax": 0.08
+    },
+    "disruption": {
+      "severityMin": 0.5,
+      "severityMax": 1,
+      "binarySeverityMin": 0.8,
+      "binarySeverityMax": 1,
+      "durationMinDays": 3,
+      "durationMaxDays": 15,
+      "picDemandeAmplificationAtMaxSeverity": 2,
+      "coupureLienWarehouseFrictionPct": 0.7,
+      "coupureLienOtherEdgesFrictionPct": 0.3,
+      "coupureLienPrimaryEdgeProbability": 0.75
+    },
+    "demand": {
+      "utilizationMin": 0.85,
+      "utilizationMax": 1.15,
+      "warmupSafetyMargin": 0.995
+    },
+    "decisions": {
+      "d1_factoryBoostPct": 0.2,
+      "d2_warehouseBoostPct": 0.25,
+      "d3_recoveryFraction": 0.5,
+      "d4_recoveryFraction": 0.5,
+      "d5_globalBoostPct": 0.15,
+      "d6_stockBoostShareOfDemand": 0.3,
+      "d6_depletionDays": 10,
+      "d7_recoveryFraction": 0.2,
+      "d8_regularDemandCutPct": 0.25,
+      "d9_regularDemandDeferPct": 0.3
+    },
+    "profiles": {
+      "reactif": {
+        "detectionThreshold": 0.97,
+        "smoothingWindowDays": 1,
+        "decisionDelayDays": 1,
+        "reevaluationDays": 2,
+        "escalationOrder": [
+          "D1",
+          "D2",
+          "D4",
+          "D3",
+          "D5",
+          "D8",
+          "D9",
+          "D6",
+          "D7"
+        ]
+      },
+      "prudent": {
+        "detectionThreshold": 0.92,
+        "smoothingWindowDays": 4,
+        "decisionDelayDays": 3,
+        "reevaluationDays": 5,
+        "escalationOrder": [
+          "D6",
+          "D7",
+          "D3",
+          "D4",
+          "D1",
+          "D2",
+          "D5",
+          "D8",
+          "D9"
+        ]
+      },
+      "tardif": {
+        "detectionThreshold": 0.85,
+        "smoothingWindowDays": 6,
+        "decisionDelayDays": 6,
+        "reevaluationDays": 8,
+        "escalationOrder": [
+          "D8",
+          "D9",
+          "D5",
+          "D6",
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D7"
+        ]
+      }
+    }
+  },
+  "75": {
+    "network": {
+      "nFactories": 3,
+      "nWarehouses": 9,
+      "factoryCapacityMin": 175,
+      "factoryCapacityMax": 280,
+      "primaryEdgeCapacityMin": 50,
+      "primaryEdgeCapacityMax": 93,
+      "secondaryEdgeCapacityMin": 10,
+      "secondaryEdgeCapacityMax": 25,
+      "tertiaryEdgeCapacityMin": 6,
+      "tertiaryEdgeCapacityMax": 14,
+      "warehouseShipCapacityMin": 43,
+      "warehouseShipCapacityMax": 83,
+      "importantShareMin": 0.2,
+      "importantShareMax": 0.53,
+      "demandNoiseMin": 0.055,
+      "demandNoiseMax": 0.12
+    },
+    "disruption": {
+      "severityMin": 0.68,
+      "severityMax": 1,
+      "binarySeverityMin": 0.88,
+      "binarySeverityMax": 1,
+      "durationMinDays": 8,
+      "durationMaxDays": 24,
+      "picDemandeAmplificationAtMaxSeverity": 2.9,
+      "coupureLienWarehouseFrictionPct": 0.83,
+      "coupureLienOtherEdgesFrictionPct": 0.48,
+      "coupureLienPrimaryEdgeProbability": 0.85
+    },
+    "demand": {
+      "utilizationMin": 1.08,
+      "utilizationMax": 1.42,
+      "warmupSafetyMargin": 0.997
+    },
+    "decisions": {
+      "d1_factoryBoostPct": 0.13,
+      "d2_warehouseBoostPct": 0.16,
+      "d3_recoveryFraction": 0.33,
+      "d4_recoveryFraction": 0.33,
+      "d5_globalBoostPct": 0.1,
+      "d6_stockBoostShareOfDemand": 0.19,
+      "d6_depletionDays": 7,
+      "d7_recoveryFraction": 0.13,
+      "d8_regularDemandCutPct": 0.17,
+      "d9_regularDemandDeferPct": 0.19
+    },
+    "profiles": {
+      "reactif": {
+        "detectionThreshold": 0.94,
+        "smoothingWindowDays": 2,
+        "decisionDelayDays": 2,
+        "reevaluationDays": 4,
+        "escalationOrder": [
+          "D1",
+          "D2",
+          "D4",
+          "D3",
+          "D5",
+          "D8",
+          "D9",
+          "D6",
+          "D7"
+        ]
+      },
+      "prudent": {
+        "detectionThreshold": 0.86,
+        "smoothingWindowDays": 5,
+        "decisionDelayDays": 5,
+        "reevaluationDays": 8,
+        "escalationOrder": [
+          "D6",
+          "D7",
+          "D3",
+          "D4",
+          "D1",
+          "D2",
+          "D5",
+          "D8",
+          "D9"
+        ]
+      },
+      "tardif": {
+        "detectionThreshold": 0.77,
+        "smoothingWindowDays": 8,
+        "decisionDelayDays": 9,
+        "reevaluationDays": 12,
+        "escalationOrder": [
+          "D8",
+          "D9",
+          "D5",
+          "D6",
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D7"
+        ]
+      }
+    }
+  },
+  "100": {
+    "network": {
+      "nFactories": 3,
+      "nWarehouses": 9,
+      "factoryCapacityMin": 150,
+      "factoryCapacityMax": 240,
+      "primaryEdgeCapacityMin": 40,
+      "primaryEdgeCapacityMax": 75,
+      "secondaryEdgeCapacityMin": 5,
+      "secondaryEdgeCapacityMax": 15,
+      "tertiaryEdgeCapacityMin": 2,
+      "tertiaryEdgeCapacityMax": 8,
+      "warehouseShipCapacityMin": 35,
+      "warehouseShipCapacityMax": 65,
+      "importantShareMin": 0.25,
+      "importantShareMax": 0.6,
+      "demandNoiseMin": 0.08,
+      "demandNoiseMax": 0.16
+    },
+    "disruption": {
+      "severityMin": 0.85,
+      "severityMax": 1,
+      "binarySeverityMin": 0.95,
+      "binarySeverityMax": 1,
+      "durationMinDays": 12,
+      "durationMaxDays": 32,
+      "picDemandeAmplificationAtMaxSeverity": 3.8,
+      "coupureLienWarehouseFrictionPct": 0.95,
+      "coupureLienOtherEdgesFrictionPct": 0.65,
+      "coupureLienPrimaryEdgeProbability": 0.95
+    },
+    "demand": {
+      "utilizationMin": 1.3,
+      "utilizationMax": 1.7,
+      "warmupSafetyMargin": 0.999
+    },
+    "decisions": {
+      "d1_factoryBoostPct": 0.06,
+      "d2_warehouseBoostPct": 0.06,
+      "d3_recoveryFraction": 0.15,
+      "d4_recoveryFraction": 0.15,
+      "d5_globalBoostPct": 0.04,
+      "d6_stockBoostShareOfDemand": 0.08,
+      "d6_depletionDays": 3,
+      "d7_recoveryFraction": 0.05,
+      "d8_regularDemandCutPct": 0.08,
+      "d9_regularDemandDeferPct": 0.08
+    },
+    "profiles": {
+      "reactif": {
+        "detectionThreshold": 0.9,
+        "smoothingWindowDays": 3,
+        "decisionDelayDays": 3,
+        "reevaluationDays": 5,
+        "escalationOrder": [
+          "D1",
+          "D2",
+          "D4",
+          "D3",
+          "D5",
+          "D8",
+          "D9",
+          "D6",
+          "D7"
+        ]
+      },
+      "prudent": {
+        "detectionThreshold": 0.8,
+        "smoothingWindowDays": 6,
+        "decisionDelayDays": 7,
+        "reevaluationDays": 10,
+        "escalationOrder": [
+          "D6",
+          "D7",
+          "D3",
+          "D4",
+          "D1",
+          "D2",
+          "D5",
+          "D8",
+          "D9"
+        ]
+      },
+      "tardif": {
+        "detectionThreshold": 0.7,
+        "smoothingWindowDays": 9,
+        "decisionDelayDays": 12,
+        "reevaluationDays": 15,
+        "escalationOrder": [
+          "D8",
+          "D9",
+          "D5",
+          "D6",
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D7"
+        ]
+      }
+    }
+  }
+}

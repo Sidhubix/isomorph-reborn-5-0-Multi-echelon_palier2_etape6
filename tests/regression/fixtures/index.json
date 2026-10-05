@@ -1,0 +1,30 @@
+[
+  {
+    "id": "C1_seed42",
+    "description": "Paramètres par défaut, graine 42, 50 scénarios"
+  },
+  {
+    "id": "C2_seed1",
+    "description": "Paramètres par défaut, graine 1, 50 scénarios"
+  },
+  {
+    "id": "C3_seed12345",
+    "description": "Paramètres par défaut, graine 12345, 50 scénarios"
+  },
+  {
+    "id": "C4_stress0",
+    "description": "Potentiomètre à 0 %, graine 42, 30 scénarios"
+  },
+  {
+    "id": "C5_stress100",
+    "description": "Potentiomètre à 100 %, graine 42, 30 scénarios"
+  },
+  {
+    "id": "C6_4usines_12entrepots",
+    "description": "Variante paramétrique 4 usines et 12 entrepôts, graine 7, 30 scénarios"
+  },
+  {
+    "id": "C7_coupure_lien",
+    "description": "Uniquement coupure de lien, graine 99, 30 scénarios"
+  }
+]
