@@ -1,0 +1,17 @@
+scenario_id,branch_id,decision_id,family,day_rel,detected_day_rel
+S0005,reactif,D1,reroutage,5,4
+S0007,reactif,D1,reroutage,5,2
+S0009,reactif,D1,reroutage,1,0
+S0009,reactif,D2,reroutage,3,0
+S0011,reactif,D5,capacite,1,0
+S0015,reactif,D5,capacite,1,0
+S0015,reactif,D8,demande,3,0
+S0017,reactif,D1,reroutage,2,0
+S0017,reactif,D3,capacite,6,0
+S0023,reactif,D5,capacite,2,0
+S0024,reactif,D1,reroutage,1,0
+S0024,reactif,D2,reroutage,3,0
+S0025,reactif,D1,reroutage,4,1
+S0025,reactif,D2,reroutage,7,1
+S0029,reactif,D1,reroutage,2,1
+S0029,reactif,D3,capacite,5,1

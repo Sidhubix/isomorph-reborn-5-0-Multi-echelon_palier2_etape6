@@ -1,0 +1,115 @@
+{
+  "nScenarios": 50,
+  "seed": 12345,
+  "warmupDays": 10,
+  "horizonDays": 60,
+  "disruptionTypes": [
+    "panne_fournisseur",
+    "coupure_lien",
+    "fermeture_entrepot",
+    "pic_demande",
+    "congestion"
+  ],
+  "params": {
+    "network": {
+      "nFactories": 3,
+      "nWarehouses": 9,
+      "factoryCapacityMin": 200,
+      "factoryCapacityMax": 320,
+      "primaryEdgeCapacityMin": 60,
+      "primaryEdgeCapacityMax": 110,
+      "secondaryEdgeCapacityMin": 15,
+      "secondaryEdgeCapacityMax": 35,
+      "tertiaryEdgeCapacityMin": 10,
+      "tertiaryEdgeCapacityMax": 20,
+      "warehouseShipCapacityMin": 50,
+      "warehouseShipCapacityMax": 100,
+      "importantShareMin": 0.15,
+      "importantShareMax": 0.45,
+      "demandNoiseMin": 0.03,
+      "demandNoiseMax": 0.08
+    },
+    "disruption": {
+      "severityMin": 0.5,
+      "severityMax": 1,
+      "binarySeverityMin": 0.8,
+      "binarySeverityMax": 1,
+      "durationMinDays": 3,
+      "durationMaxDays": 15,
+      "picDemandeAmplificationAtMaxSeverity": 2,
+      "coupureLienWarehouseFrictionPct": 0.7,
+      "coupureLienOtherEdgesFrictionPct": 0.3,
+      "coupureLienPrimaryEdgeProbability": 0.75
+    },
+    "demand": {
+      "utilizationMin": 0.85,
+      "utilizationMax": 1.15,
+      "warmupSafetyMargin": 0.995
+    },
+    "decisions": {
+      "d1_factoryBoostPct": 0.2,
+      "d2_warehouseBoostPct": 0.25,
+      "d3_recoveryFraction": 0.5,
+      "d4_recoveryFraction": 0.5,
+      "d5_globalBoostPct": 0.15,
+      "d6_stockBoostShareOfDemand": 0.3,
+      "d6_depletionDays": 10,
+      "d7_recoveryFraction": 0.2,
+      "d8_regularDemandCutPct": 0.25,
+      "d9_regularDemandDeferPct": 0.3
+    },
+    "profiles": {
+      "reactif": {
+        "detectionThreshold": 0.97,
+        "smoothingWindowDays": 1,
+        "decisionDelayDays": 1,
+        "reevaluationDays": 2,
+        "escalationOrder": [
+          "D1",
+          "D2",
+          "D4",
+          "D3",
+          "D5",
+          "D8",
+          "D9",
+          "D6",
+          "D7"
+        ]
+      },
+      "prudent": {
+        "detectionThreshold": 0.92,
+        "smoothingWindowDays": 4,
+        "decisionDelayDays": 3,
+        "reevaluationDays": 5,
+        "escalationOrder": [
+          "D6",
+          "D7",
+          "D3",
+          "D4",
+          "D1",
+          "D2",
+          "D5",
+          "D8",
+          "D9"
+        ]
+      },
+      "tardif": {
+        "detectionThreshold": 0.85,
+        "smoothingWindowDays": 6,
+        "decisionDelayDays": 6,
+        "reevaluationDays": 8,
+        "escalationOrder": [
+          "D8",
+          "D9",
+          "D5",
+          "D6",
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D7"
+        ]
+      }
+    }
+  }
+}

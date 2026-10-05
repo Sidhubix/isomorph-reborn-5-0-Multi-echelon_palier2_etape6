@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": ".regression-build",
+    "rootDir": ".",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "types": [],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx"
+  },
+  "files": [
+    "bloc1Types.ts",
+    "bloc1DefaultParams.ts",
+    "bloc1Network.ts",
+    "bloc1Decisions.ts",
+    "bloc1Manager.ts",
+    "bloc1ExperimentPlan.ts",
+    "bloc1StressModel.ts",
+    "bloc1Flow.ts",
+    "bloc1NetworkFormat.ts",
+    "bloc1IsomorphPreset.ts",
+    "bloc1Descriptions.ts",
+    "bloc1NetworkSelection.ts",
+    "ImpactPotentiometer.tsx",
+    "NetworkPanel.tsx",
+    "Bloc1ScenarioGenerator.tsx",
+    "DownloadCenter.tsx",
+    "ModelDocumentation.tsx",
+    "bloc1Temporal.ts",
+    "bloc1TemporalUi.ts",
+    "TemporalPanel.tsx",
+    "tests/regression/regression.ts"
+  ]
+}

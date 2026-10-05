@@ -1,0 +1,31 @@
+scenario_id,type,start,duration,severity,target
+S0001,fermeture_entrepot,0,1,0.307488,W6
+S0002,fermeture_entrepot,0,3,0.383671,W4
+S0003,congestion,0,3,0.236080,réseau (congestion générale)
+S0004,panne_fournisseur,0,2,0.275444,F2
+S0005,fermeture_entrepot,0,1,0.415437,W7
+S0006,panne_fournisseur,0,3,0.299020,F1
+S0007,congestion,0,2,0.231053,réseau (congestion générale)
+S0008,pic_demande,0,3,0.287608,NY (demande)
+S0009,congestion,0,2,0.209746,réseau (congestion générale)
+S0010,pic_demande,0,1,0.205695,NY (demande)
+S0011,pic_demande,0,1,0.227262,NY (demande)
+S0012,pic_demande,0,2,0.324745,NY (demande)
+S0013,panne_fournisseur,0,3,0.168824,F2
+S0014,congestion,0,2,0.288812,réseau (congestion générale)
+S0015,panne_fournisseur,0,3,0.333883,F1
+S0016,coupure_lien,0,3,0.308765,F3->W5
+S0017,pic_demande,0,4,0.280809,NY (demande)
+S0018,coupure_lien,0,3,0.436316,F3->W3
+S0019,pic_demande,0,2,0.330801,NY (demande)
+S0020,coupure_lien,0,2,0.422322,F3->W9
+S0021,fermeture_entrepot,0,1,0.488968,W4
+S0022,panne_fournisseur,0,2,0.286779,F2
+S0023,congestion,0,3,0.300219,réseau (congestion générale)
+S0024,congestion,0,1,0.256351,réseau (congestion générale)
+S0025,coupure_lien,0,2,0.465645,F3->W3
+S0026,coupure_lien,0,3,0.470366,F1->W6
+S0027,coupure_lien,0,4,0.459759,F1->W7
+S0028,coupure_lien,0,2,0.324353,F3->W4
+S0029,coupure_lien,0,2,0.494880,F3->W9
+S0030,panne_fournisseur,0,2,0.309089,F2

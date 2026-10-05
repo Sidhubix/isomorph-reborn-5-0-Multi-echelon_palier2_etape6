@@ -1,0 +1,51 @@
+scenario_id,type,start,duration,severity,target
+S0001,coupure_lien,0,11,0.800352,F2->W1
+S0002,fermeture_entrepot,0,6,0.963553,W5
+S0003,panne_fournisseur,0,12,0.965436,F1
+S0004,fermeture_entrepot,0,4,0.933891,W2
+S0005,fermeture_entrepot,0,6,0.841581,W8
+S0006,fermeture_entrepot,0,12,0.945343,W8
+S0007,panne_fournisseur,0,11,0.720369,F2
+S0008,panne_fournisseur,0,7,0.941697,F2
+S0009,pic_demande,0,10,0.768907,NY (demande)
+S0010,fermeture_entrepot,0,14,0.917526,W2
+S0011,panne_fournisseur,0,11,0.528479,F3
+S0012,coupure_lien,0,8,0.873259,F2->W2
+S0013,coupure_lien,0,14,0.886698,F1->W1
+S0014,coupure_lien,0,12,0.915275,F3->W9
+S0015,congestion,0,14,0.845692,réseau (congestion générale)
+S0016,panne_fournisseur,0,5,0.883371,F2
+S0017,panne_fournisseur,0,5,0.707822,F2
+S0018,fermeture_entrepot,0,10,0.882540,W4
+S0019,pic_demande,0,5,0.569256,NY (demande)
+S0020,fermeture_entrepot,0,5,0.947223,W7
+S0021,congestion,0,13,0.673997,réseau (congestion générale)
+S0022,coupure_lien,0,14,0.958622,F2->W8
+S0023,pic_demande,0,7,0.939795,NY (demande)
+S0024,panne_fournisseur,0,13,0.598391,F2
+S0025,congestion,0,11,0.932540,réseau (congestion générale)
+S0026,pic_demande,0,11,0.580146,NY (demande)
+S0027,fermeture_entrepot,0,4,0.816288,W5
+S0028,coupure_lien,0,9,0.880904,F1->W4
+S0029,panne_fournisseur,0,7,0.759825,F3
+S0030,congestion,0,10,0.624486,réseau (congestion générale)
+S0031,congestion,0,13,0.500770,réseau (congestion générale)
+S0032,coupure_lien,0,14,0.917419,F3->W5
+S0033,fermeture_entrepot,0,6,0.924903,W9
+S0034,coupure_lien,0,11,0.812423,F3->W3
+S0035,fermeture_entrepot,0,5,0.812159,W2
+S0036,panne_fournisseur,0,13,0.885545,F2
+S0037,pic_demande,0,8,0.752767,NY (demande)
+S0038,pic_demande,0,4,0.529836,NY (demande)
+S0039,congestion,0,13,0.922105,réseau (congestion générale)
+S0040,fermeture_entrepot,0,8,0.894676,W8
+S0041,pic_demande,0,11,0.583199,NY (demande)
+S0042,coupure_lien,0,11,0.906774,F1->W7
+S0043,fermeture_entrepot,0,3,0.848856,W6
+S0044,panne_fournisseur,0,10,0.847554,F1
+S0045,pic_demande,0,13,0.615151,NY (demande)
+S0046,panne_fournisseur,0,5,0.813442,F3
+S0047,pic_demande,0,14,0.532628,NY (demande)
+S0048,fermeture_entrepot,0,12,0.923598,W1
+S0049,fermeture_entrepot,0,5,0.865157,W6
+S0050,fermeture_entrepot,0,11,0.931764,W4
