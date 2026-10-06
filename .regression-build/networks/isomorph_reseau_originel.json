@@ -1,0 +1,45 @@
+{
+    "name": "ISOMORPH original supply chain network",
+    "source": "tuhinsahai/ISOMORPH, simulator/Supplychaingeo_item50.py",
+    "directed": true,
+    "description": "13 US cities, 16 directed arcs, single final destination (NewYork). Flow goes from 3 sources through a hub and 4 intermediate echelons to the customer.",
+    "nodes": [
+        { "id": "SanFrancisco", "tier": "src" },
+        { "id": "StLouis", "tier": "src" },
+        { "id": "Orlando", "tier": "src" },
+        { "id": "Nashville", "tier": "hub" },
+        { "id": "Atlanta", "tier": "t2" },
+        { "id": "Chicago", "tier": "t3" },
+        { "id": "Charlotte", "tier": "t3" },
+        { "id": "Memphis", "tier": "t3" },
+        { "id": "Columbus", "tier": "t4" },
+        { "id": "Richmond", "tier": "t4" },
+        { "id": "Philadelphia", "tier": "t5" },
+        { "id": "Baltimore", "tier": "t5" },
+        { "id": "NewYork", "tier": "dest" }
+    ],
+    "edges": [
+        { "from": "SanFrancisco", "to": "Nashville", "travel_time_days": 4, "container_volume": 5000, "containers_per_day": 3 },
+        { "from": "StLouis", "to": "Nashville", "travel_time_days": 2, "container_volume": 5000, "containers_per_day": 3 },
+        { "from": "Orlando", "to": "Nashville", "travel_time_days": 2, "container_volume": 5000, "containers_per_day": 3 },
+        { "from": "Nashville", "to": "Atlanta", "travel_time_days": 1, "container_volume": 15000, "containers_per_day": 3 },
+        { "from": "Atlanta", "to": "Chicago", "travel_time_days": 8, "container_volume": 4000, "containers_per_day": 3 },
+        { "from": "Atlanta", "to": "Charlotte", "travel_time_days": 7, "container_volume": 4000, "containers_per_day": 3 },
+        { "from": "Atlanta", "to": "Memphis", "travel_time_days": 7, "container_volume": 4000, "containers_per_day": 3 },
+        { "from": "Chicago", "to": "Columbus", "travel_time_days": 2, "container_volume": 4000, "containers_per_day": 3 },
+        { "from": "Charlotte", "to": "Richmond", "travel_time_days": 2, "container_volume": 4000, "containers_per_day": 3 },
+        { "from": "Columbus", "to": "Philadelphia", "travel_time_days": 2, "container_volume": 4000, "containers_per_day": 3 },
+        { "from": "Richmond", "to": "Philadelphia", "travel_time_days": 1, "container_volume": 4000, "containers_per_day": 3 },
+        { "from": "Richmond", "to": "Baltimore", "travel_time_days": 3, "container_volume": 3000, "containers_per_day": 3 },
+        { "from": "Columbus", "to": "Baltimore", "travel_time_days": 3, "container_volume": 3000, "containers_per_day": 3 },
+        { "from": "Memphis", "to": "Baltimore", "travel_time_days": 2, "container_volume": 3000, "containers_per_day": 3 },
+        { "from": "Philadelphia", "to": "NewYork", "travel_time_days": 1, "container_volume": 1000, "containers_per_day": 3, "note": "last mile, placeholder capacity overwritten by the simulator (120% of mean daily demand volume)" },
+        { "from": "Baltimore", "to": "NewYork", "travel_time_days": 2, "container_volume": 1000, "containers_per_day": 3, "note": "last mile, placeholder capacity overwritten by the simulator (120% of mean daily demand volume)" }
+    ],
+    "model_notes": {
+        "routing": "Dijkstra with weight = travel time / daily capacity",
+        "container_filling": "greedy first-fit, unit by unit, in the containers of each arc on the path",
+        "inventory_policy": "(s,S) per node and item; production lead time at sources only",
+        "items": "up to 50 items I01 to I50, unit volume drawn between 1 and 4"
+    }
+}

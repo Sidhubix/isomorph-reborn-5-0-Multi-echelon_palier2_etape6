@@ -1,6 +1,6 @@
 {
-  "name": "_isomorph-reborn-BC1-2 v3 CSV RB",
-  "description": "isomorph-reborn-BC1_2",
+  "name": "010 SC-Reborn — Résilience Hyperbolique & Plans d'expérience",
+  "description": "Supply chain resilience modeling and batch curve fitting application calculating resilience KPIs (IPC, CRD, TRP, SRA, ERR, PR) for disruption scenarios.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

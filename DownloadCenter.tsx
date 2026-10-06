@@ -3,8 +3,9 @@ import {
   Download, FileSpreadsheet, FileJson, CheckCircle2, Layers,
   Eye, ArrowRight, PackageCheck, AlertCircle, RefreshCw, Network,
   Cloud, CloudUpload, Upload, Trash2, Bookmark, Check,
-  ChevronDown, ChevronUp
+  ChevronDown, ChevronUp, Archive
 } from 'lucide-react';
+import JSZip from 'jszip';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import {
   auth, signInWithGoogle,
@@ -305,23 +306,81 @@ const networkInfo = datasetNetworkInfo(dataset);
     setTimeout(() => setDownloadFeedback(null), 3000);
   };
 
-  const handleDownloadAll = () => {
-    if (readyFiles.length === 0) return;
+  const handleDownloadAll = async () => {
+    if (readyFiles.length === 0 && !canExportRb) return;
     setDownloadingAll(true);
-    setDownloadFeedback(`Téléchargement en cours des ${readyFiles.length} fichiers...`);
+    setDownloadFeedback('Génération de l\'archive ZIP complète en cours (fichiers de simulation, indicateurs & Réseau Bayésien)...');
 
-    readyFiles.forEach((file, index) => {
-      setTimeout(() => {
+    try {
+      const zip = new JSZip();
+
+      // 1. Ajouter tous les fichiers disponibles et prêts
+      for (const file of readyFiles) {
         const content = file.getContent();
-        const mime = file.type === 'json' ? 'application/json' : 'text/csv;charset=utf-8;';
-        downloadTextFile(file.name, content, mime);
-        if (index === readyFiles.length - 1) {
-          setDownloadingAll(false);
-          setDownloadFeedback(`✅ Tous les ${readyFiles.length} fichiers ont été téléchargés avec succès !`);
-          setTimeout(() => setDownloadFeedback(null), 4000);
+        if (content && content.length > 0) {
+          zip.file(file.name, content);
         }
-      }, index * 250);
-    });
+      }
+
+      // 2. Ajouter l'export Réseau Bayésien (RB training CSV) si possible
+      if (canExportRb) {
+        const rbFileName = getRbTrainingFilename(currentSeed);
+        const rbCsvContent = generateRbTrainingCsv(dataset, resilienceRows);
+        if (rbCsvContent && rbCsvContent.length > 0) {
+          zip.file(rbFileName, rbCsvContent);
+        }
+
+        // 3. Ajouter le dictionnaire Réseau Bayésien (RB dictionary JSON)
+        const dictFileName = getRbDictionaryFilename(currentSeed);
+        const dictJsonContent = generateRbDictionaryJson(dataset, resilienceRows);
+        if (dictJsonContent && dictJsonContent.length > 0) {
+          zip.file(dictFileName, dictJsonContent);
+        }
+      }
+
+      // 4. Ajouter le bundle du plan d'expérience structuré complet
+      if (dataset || resilienceRows.length > 0) {
+        const bundle = createSimulationProcessBundle(dataset, resilienceRows, resilienceCsv, processCustomName);
+        if (bundle) {
+          const bundleJson = simulationProcessToJson(bundle);
+          const ts = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15);
+          const nSc = bundle.summary.nScenarios || dataset?.scenarios?.length || 0;
+          const totalDays = (bundle.summary.warmupDays ?? 10) + (bundle.summary.horizonDays ?? 60);
+          const nPts = dataset?.ipTimeseries?.length || (bundle.summary as any)?.nPoints || (nSc * 4 * totalDays);
+          const scPtsTag = `${nSc}Sc-${nPts}Pts`;
+          zip.file(`plan_experience_${scPtsTag}_seed${bundle.summary.seed}_${ts}.json`, bundleJson);
+        }
+      }
+
+      // Générer l'archive ZIP binaire
+      const zipBlob = await zip.generateAsync({
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 },
+      });
+
+      // Déclencher le téléchargement du fichier ZIP unique
+      const ts = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15);
+      const zipFileName = `simulation_bundle_isomorph_seed${currentSeed}_${ts}.zip`;
+
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = zipFileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      setDownloadFeedback(`✅ Archive ZIP complète téléchargée avec succès (${zipFileName}) comprenant tous les CSV/JSON et l'export Réseau Bayésien !`);
+      setTimeout(() => setDownloadFeedback(null), 5000);
+    } catch (err: any) {
+      console.error('Erreur lors de la génération du ZIP:', err);
+      setDownloadFeedback(`❌ Erreur lors de la création de l'archive ZIP: ${err?.message || 'Erreur inattendue'}`);
+      setTimeout(() => setDownloadFeedback(null), 5000);
+    } finally {
+      setDownloadingAll(false);
+    }
   };
 
   // Actions sur les plans d'expérience
@@ -532,18 +591,19 @@ const networkInfo = datasetNetworkInfo(dataset);
 
             <button
               onClick={handleDownloadAll}
-              disabled={readyFiles.length === 0 || downloadingAll}
+              disabled={(readyFiles.length === 0 && !canExportRb) || downloadingAll}
               className="px-5 py-3 bg-white text-emerald-800 hover:bg-emerald-50 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed rounded-lg text-sm font-bold shadow-md transition-all flex items-center gap-2"
+              title="Télécharger l'ensemble des fichiers (CSV, JSON, Réseau Bayésien et plan complet) dans une unique archive ZIP"
             >
               {downloadingAll ? (
                 <>
                   <RefreshCw size={18} className="animate-spin text-emerald-600" />
-                  <span>Téléchargement en cours...</span>
+                  <span>Génération du ZIP...</span>
                 </>
               ) : (
                 <>
-                  <Download size={18} className="text-emerald-700" />
-                  <span>Tout télécharger en lot ({readyFiles.length}/{files.length})</span>
+                  <Archive size={18} className="text-emerald-700" />
+                  <span>Tout télécharger en ZIP (CSV + JSON + RB)</span>
                 </>
               )}
             </button>

@@ -745,6 +745,7 @@ const Bloc1ScenarioGenerator: React.FC<Bloc1ScenarioGeneratorProps> = ({
           params={params}
           planMeta={planMeta}
           isRunning={isRunning}
+          defaultOpen={false}
         />
 
         {/* -------- Potentiomètre d'impact attendu sur l'IP (Modèle de variation continue) -------- */}
@@ -754,6 +755,7 @@ const Bloc1ScenarioGenerator: React.FC<Bloc1ScenarioGeneratorProps> = ({
           isCustomized={isCustomized}
           onResetToDefault={resetParams}
           networkNotice={potentiometerNetworkNotice(resolvedNetwork)}
+          defaultOpen={false}
         />
 
         {/* -------- Plan d'expériences (taille, seed, horizon, natures activées) -------- */}

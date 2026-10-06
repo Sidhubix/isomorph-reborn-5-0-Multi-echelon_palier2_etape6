@@ -10,7 +10,7 @@
 // ============================================================================
 
 import React, { useMemo, useState } from 'react';
-import { Download, Upload, AlertCircle, CheckCircle2, TriangleAlert, Network } from 'lucide-react';
+import { Download, Upload, AlertCircle, CheckCircle2, TriangleAlert, Network, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { ModelParams, NetworkNodeType } from './bloc1Types';
 import { ValidationIssue, networkDocumentToJson } from './bloc1NetworkFormat';
@@ -86,6 +86,7 @@ export interface NetworkPanelProps {
   params: ModelParams;
   planMeta: PlanMeta;
   isRunning?: boolean;
+  defaultOpen?: boolean;
 }
 
 interface ImportFeedback { fileName: string; outcome: ImportOutcome; }
@@ -105,7 +106,8 @@ const SourceButton: React.FC<{
   </button>
 );
 
-export const NetworkPanel: React.FC<NetworkPanelProps> = ({ choice, onChoiceChange, resolved, params, planMeta, isRunning }) => {
+export const NetworkPanel: React.FC<NetworkPanelProps> = ({ choice, onChoiceChange, resolved, params, planMeta, isRunning, defaultOpen = true }) => {
+  const [isOpen, setIsOpen] = useState<boolean>(defaultOpen);
   const [feedback, setFeedback] = useState<ImportFeedback | null>(null);
   const [exportError, setExportError] = useState<string>('');
   const [exportScenario, setExportScenario] = useState<number>(1);
@@ -170,176 +172,202 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({ choice, onChoiceChan
   const activeReport = resolved.report;
 
   return (
-    <section id="section-reseau" className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
-      <div className="flex items-start gap-2">
-        <Network size={18} className="text-orange-600 mt-0.5 shrink-0" />
-        <div>
-          <h2 className="font-bold text-gray-800">Réseau logistique</h2>
-          <p className="text-xs text-gray-600 leading-relaxed">
-            Réseau sur lequel le plan d'expériences est simulé. Le réseau par défaut est celui des versions précédentes ;
-            il reste sélectionné tant que vous n'en choisissez pas un autre.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <SourceButton active={resolved.source === 'parametrique'} disabled={isRunning}
-          title={PARAMETRIC_LABEL}
-          subtitle={`${paramLabel}. Capacités tirées à chaque scénario dans les plages des hypothèses (section 1).`}
-          onClick={() => select('parametrique')} />
-        <SourceButton active={resolved.source === 'isomorph'} disabled={isRunning}
-          title="ISOMORPH d'origine"
-          subtitle="13 villes, 16 arcs, 1 hub, 7 échelons (simulateur ISOMORPH). Hypothèses réglables : section 7 des hypothèses."
-          onClick={() => select('isomorph')} />
-        <SourceButton active={resolved.source === 'importe'} disabled={isRunning || !choice.imported}
-          title={importedName ? `Réseau importé : ${importedName}` : 'Réseau importé'}
-          subtitle={choice.imported ? choice.imported.document.name : "Aucun fichier importé pour l'instant. Utilisez « Importer un réseau (JSON) »."}
-          onClick={() => select('importe')} />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <input ref={fileInputRef} type="file" accept=".json,application/json" onChange={handleFile} className="hidden" />
-        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isRunning}
-          className="px-3 py-1.5 bg-white hover:bg-orange-50 text-orange-700 rounded-md text-xs font-semibold border border-orange-300 flex items-center gap-1.5 disabled:opacity-40">
-          <Upload size={13} /> Importer un réseau (JSON)
-        </button>
-        {!isParametric && (
-          <button type="button" onClick={exportDefinition} disabled={!resolved.document}
-            className="px-3 py-1.5 bg-white hover:bg-orange-50 text-orange-700 rounded-md text-xs font-semibold border border-orange-300 flex items-center gap-1.5 disabled:opacity-40"
-            title="Télécharge le réseau tel qu'il est défini (format isomorph-reborn-network)">
-            <Download size={13} /> Exporter le réseau (JSON)
-          </button>
-        )}
-        <span className="inline-flex items-center gap-1.5 text-xs text-gray-700">
-          <label htmlFor="export-scenario-n">Instance du scénario n°</label>
-          <input id="export-scenario-n" type="number" min={1} max={planMeta.nScenarios} step={1} value={exportScenario}
-            onChange={e => setExportScenario(Number(e.target.value))}
-            className="w-20 px-2 py-1 rounded border border-gray-300 text-xs focus:border-orange-500 outline-none" />
-          <button type="button" onClick={exportInstance}
-            className="px-3 py-1.5 bg-white hover:bg-orange-50 text-orange-700 rounded-md text-xs font-semibold border border-orange-300 flex items-center gap-1.5"
-            title="Rejoue les tirages du plan (graine et configuration actuelles) jusqu'à ce scénario et télécharge son réseau à capacités fixes, avec la règle et la graine en provenance">
-            <Download size={13} /> Exporter l'instance (JSON)
-          </button>
-        </span>
-      </div>
-      {exportError && (
-        <div className="p-2.5 bg-red-100 text-red-800 rounded-lg text-xs flex items-center gap-2">
-          <AlertCircle size={15} /> {exportError}
-        </div>
-      )}
-
-      {feedback && feedback.outcome.accepted && (
-        <div className="p-2.5 bg-green-100 text-green-900 rounded-lg text-xs flex items-center gap-2">
-          <CheckCircle2 size={15} /> Fichier « {feedback.fileName} » importé et sélectionné.
-        </div>
-      )}
-      {feedback && !feedback.outcome.accepted && (
-        <div className="p-3 bg-red-50 border border-red-300 rounded-lg space-y-2">
-          <div className="flex items-center gap-2 text-sm font-bold text-red-800">
-            <AlertCircle size={16} /> Import refusé : « {feedback.fileName} » contient {feedback.outcome.report.errors.length} erreur{feedback.outcome.report.errors.length > 1 ? 's' : ''} bloquante{feedback.outcome.report.errors.length > 1 ? 's' : ''}.
+    <section id="section-reseau" className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden shadow-2xs">
+      {/* En-tête dépliant */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(prev => !prev)}
+        className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-100/80 transition-colors focus:outline-none"
+      >
+        <div className="flex items-start gap-2.5">
+          <Network size={20} className="text-orange-600 mt-0.5 shrink-0" />
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-bold text-gray-800 text-sm md:text-base">Réseau logistique</h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200">
+                {resolved.label}
+              </span>
+              <span className="text-xs text-gray-500 font-medium">
+                ({isParametric ? paramLabel : `${view.summary.nNodes} nœuds, ${view.summary.nArcs ?? 0} arcs`})
+              </span>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed mt-0.5">
+              Réseau sur lequel le plan d'expériences est simulé (paramétrique, ISOMORPH ou importé).
+            </p>
           </div>
-          <p className="text-xs text-red-900">Le réseau sélectionné n'a pas changé. Corrigez le fichier puis importez-le à nouveau.</p>
-          <IssueList issues={feedback.outcome.report.errors} tone="error" />
         </div>
-      )}
 
-      {resolved.error && (
-        <div className="p-3 bg-red-50 border border-red-300 rounded-lg space-y-2">
-          <div className="flex items-center gap-2 text-sm font-bold text-red-800">
-            <AlertCircle size={16} /> Le plan ne peut pas être lancé avec ce réseau.
-          </div>
-          <p className="text-xs text-red-900">{resolved.error}</p>
-          {activeReport && activeReport.errors.length > 0 && <IssueList issues={activeReport.errors} tone="error" />}
-        </div>
-      )}
-
-      <div className="p-3 bg-white border border-gray-200 rounded-lg space-y-2">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-sm font-bold text-gray-800">Résumé : {resolved.label}</h3>
-          <span className="text-[11px] text-gray-500">
-            {isParametric ? "Structure générée par la règle (capacités tirées à chaque scénario)" : 'Réseau explicite (ordre du fichier = ordre des tirages)'}
+        <div className="flex items-center gap-2 shrink-0 ml-2">
+          <span className="text-xs font-semibold text-gray-500 hidden sm:inline">
+            {isOpen ? 'Replier' : 'Déplier'}
           </span>
+          {isOpen ? <ChevronUp size={18} className="text-gray-600" /> : <ChevronDown size={18} className="text-gray-600" />}
         </div>
-        <div className="flex flex-wrap gap-2 text-xs">
-          {view.summary.nodesByType.map(t => (
-            <span key={t.type} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-gray-200 bg-gray-50">
-              <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: NODE_TYPE_COLORS[t.type] }} />
-              {NODE_TYPE_LABELS[t.type]} : <strong>{t.count}</strong>
-            </span>
-          ))}
-          <span className="px-2 py-1 rounded-full border border-gray-200 bg-gray-50">Nœuds : <strong>{view.summary.nNodes}</strong></span>
-          <span className="px-2 py-1 rounded-full border border-gray-200 bg-gray-50">
-            Arcs : <strong>{view.summary.nArcs ?? 'non calculé'}</strong>
-            {view.summary.nArcs !== null && (
-              <span className="text-gray-500"> ({view.summary.nArcsFinite} de capacité finie, {view.summary.nArcsUnlimited} illimités)</span>
+      </button>
+
+      {/* Contenu complet dépliant */}
+      {isOpen && (
+        <div className="p-4 pt-0 space-y-4 border-t border-gray-200 animate-in fade-in duration-150">
+          <div className="pt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <SourceButton active={resolved.source === 'parametrique'} disabled={isRunning}
+              title={PARAMETRIC_LABEL}
+              subtitle={`${paramLabel}. Capacités tirées à chaque scénario dans les plages des hypothèses (section 1).`}
+              onClick={() => select('parametrique')} />
+            <SourceButton active={resolved.source === 'isomorph'} disabled={isRunning}
+              title="ISOMORPH d'origine"
+              subtitle="13 villes, 16 arcs, 1 hub, 7 échelons (simulateur ISOMORPH). Hypothèses réglables : section 7 des hypothèses."
+              onClick={() => select('isomorph')} />
+            <SourceButton active={resolved.source === 'importe'} disabled={isRunning || !choice.imported}
+              title={importedName ? `Réseau importé : ${importedName}` : 'Réseau importé'}
+              subtitle={choice.imported ? choice.imported.document.name : "Aucun fichier importé pour l'instant. Utilisez « Importer un réseau (JSON) »."}
+              onClick={() => select('importe')} />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <input ref={fileInputRef} type="file" accept=".json,application/json" onChange={handleFile} className="hidden" />
+            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isRunning}
+              className="px-3 py-1.5 bg-white hover:bg-orange-50 text-orange-700 rounded-md text-xs font-semibold border border-orange-300 flex items-center gap-1.5 disabled:opacity-40">
+              <Upload size={13} /> Importer un réseau (JSON)
+            </button>
+            {!isParametric && (
+              <button type="button" onClick={exportDefinition} disabled={!resolved.document}
+                className="px-3 py-1.5 bg-white hover:bg-orange-50 text-orange-700 rounded-md text-xs font-semibold border border-orange-300 flex items-center gap-1.5 disabled:opacity-40"
+                title="Télécharge le réseau tel qu'il est défini (format isomorph-reborn-network)">
+                <Download size={13} /> Exporter le réseau (JSON)
+              </button>
             )}
-          </span>
-          <span className="px-2 py-1 rounded-full border border-gray-200 bg-gray-50">Échelons : <strong>{view.summary.nEchelons ?? 'non calculé'}</strong></span>
-          {view.summary.nIgnored > 0 && (
-            <span className="px-2 py-1 rounded-full border border-amber-300 bg-amber-50 text-amber-900">Nœuds ignorés : <strong>{view.summary.nIgnored}</strong></span>
-          )}
-        </div>
-        {params.temporal.enabled && (
-          <p className="text-[11px] text-indigo-800 bg-indigo-50 border border-indigo-200 rounded px-2 py-1 leading-relaxed">
-            Mode temporel actif : délais et stocks (s, S) pris en compte
-            {view.summary.timing
-              ? ` — lus dans le fichier : ${view.summary.timing.travelArcs} délai(s) de trajet (jusqu'à ${view.summary.timing.maxTravelDays} j), ${view.summary.timing.leadNodes} délai(s) de production (jusqu'à ${view.summary.timing.maxLeadDays} j), ${view.summary.timing.inventoryNodes} politique(s) inventory.`
-              : ' — délais par défaut des hypothèses (section 8), aucun délai propre au réseau.'}
-            {' '}Réglages : section 8 des hypothèses.
-          </p>
-        )}
-        {isParametric && (
-          <p className="text-[11px] text-gray-500 leading-relaxed">
-            Les arcs illimités du résumé sont les liaisons entrepôt vers client, qui représentent l'expédition vers le client
-            (limitée par la capacité d'expédition de chaque entrepôt).
-          </p>
-        )}
-      </div>
-
-      {!isParametric && activeReport && (
-        <div className="p-3 bg-white border border-gray-200 rounded-lg space-y-2">
-          <h3 className="text-sm font-bold text-gray-800">Rapport de validation</h3>
-          {activeReport.errors.length === 0 && activeReport.warnings.length === 0 && (
-            <p className="text-xs text-green-800 flex items-center gap-1.5"><CheckCircle2 size={14} /> Aucune erreur ni avertissement.</p>
-          )}
-          {activeReport.errors.length === 0 && activeReport.warnings.length > 0 && (
-            <p className="text-xs text-green-800 flex items-center gap-1.5"><CheckCircle2 size={14} /> Aucune erreur bloquante : le plan peut être lancé.</p>
-          )}
-          {activeReport.warnings.length > 0 && (
-            <div className="p-2.5 bg-amber-50 border border-amber-300 rounded-lg space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                <TriangleAlert size={14} /> {activeReport.warnings.length} avertissement{activeReport.warnings.length > 1 ? 's' : ''} (non bloquant{activeReport.warnings.length > 1 ? 's' : ''})
-              </div>
-              <IssueList issues={activeReport.warnings} tone="warning" />
+            <span className="inline-flex items-center gap-1.5 text-xs text-gray-700">
+              <label htmlFor="export-scenario-n">Instance du scénario n°</label>
+              <input id="export-scenario-n" type="number" min={1} max={planMeta.nScenarios} step={1} value={exportScenario}
+                onChange={e => setExportScenario(Number(e.target.value))}
+                className="w-20 px-2 py-1 rounded border border-gray-300 text-xs focus:border-orange-500 outline-none" />
+              <button type="button" onClick={exportInstance}
+                className="px-3 py-1.5 bg-white hover:bg-orange-50 text-orange-700 rounded-md text-xs font-semibold border border-orange-300 flex items-center gap-1.5"
+                title="Rejoue les tirages du plan (graine et configuration actuelles) jusqu'à ce scénario et télécharge son réseau à capacités fixes, avec la règle et la graine en provenance">
+                <Download size={13} /> Exporter l'instance (JSON)
+              </button>
+            </span>
+          </div>
+          {exportError && (
+            <div className="p-2.5 bg-red-100 text-red-800 rounded-lg text-xs flex items-center gap-2">
+              <AlertCircle size={15} /> {exportError}
             </div>
           )}
-        </div>
-      )}
 
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-bold text-gray-800">Schéma par échelons</h3>
-          <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-600">
-            {(Object.keys(NODE_TYPE_COLORS) as NetworkNodeType[])
-              .filter(t => view.summary.nodesByType.some(x => x.type === t))
-              .map(t => (
-                <span key={t} className="inline-flex items-center gap-1">
-                  <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: NODE_TYPE_COLORS[t] }} />{NODE_TYPE_LABELS[t]}
+          {feedback && feedback.outcome.accepted && (
+            <div className="p-2.5 bg-green-100 text-green-900 rounded-lg text-xs flex items-center gap-2">
+              <CheckCircle2 size={15} /> Fichier « {feedback.fileName} » importé et sélectionné.
+            </div>
+          )}
+          {feedback && !feedback.outcome.accepted && (
+            <div className="p-3 bg-red-50 border border-red-300 rounded-lg space-y-2">
+              <div className="flex items-center gap-2 text-sm font-bold text-red-800">
+                <AlertCircle size={16} /> Import refusé : « {feedback.fileName} » contient {feedback.outcome.report.errors.length} erreur{feedback.outcome.report.errors.length > 1 ? 's' : ''} bloquante{feedback.outcome.report.errors.length > 1 ? 's' : ''}.
+              </div>
+              <p className="text-xs text-red-900">Le réseau sélectionné n'a pas changé. Corrigez le fichier puis importez-le à nouveau.</p>
+              <IssueList issues={feedback.outcome.report.errors} tone="error" />
+            </div>
+          )}
+
+          {resolved.error && (
+            <div className="p-3 bg-red-50 border border-red-300 rounded-lg space-y-2">
+              <div className="flex items-center gap-2 text-sm font-bold text-red-800">
+                <AlertCircle size={16} /> Le plan ne peut pas être lancé avec ce réseau.
+              </div>
+              <p className="text-xs text-red-900">{resolved.error}</p>
+              {activeReport && activeReport.errors.length > 0 && <IssueList issues={activeReport.errors} tone="error" />}
+            </div>
+          )}
+
+          <div className="p-3 bg-white border border-gray-200 rounded-lg space-y-2">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="text-sm font-bold text-gray-800">Résumé : {resolved.label}</h3>
+              <span className="text-[11px] text-gray-500">
+                {isParametric ? "Structure générée par la règle (capacités tirées à chaque scénario)" : 'Réseau explicite (ordre du fichier = ordre des tirages)'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs">
+              {view.summary.nodesByType.map(t => (
+                <span key={t.type} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-gray-200 bg-gray-50">
+                  <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: NODE_TYPE_COLORS[t.type] }} />
+                  {NODE_TYPE_LABELS[t.type]} : <strong>{t.count}</strong>
                 </span>
               ))}
-            <span>trait plein : capacité finie · pointillé : illimité</span>
-            <label className="inline-flex items-center gap-1" htmlFor="preview-max-nodes">
-              Limite d'affichage (nœuds)
-              <input id="preview-max-nodes" type="number" min={1} step={10} value={previewMaxNodes}
-                onChange={e => setPreviewMaxNodes(Number(e.target.value))}
-                className="w-16 px-1.5 py-0.5 rounded border border-gray-300 text-[11px] focus:border-orange-500 outline-none" />
-            </label>
+              <span className="px-2 py-1 rounded-full border border-gray-200 bg-gray-50">Nœuds : <strong>{view.summary.nNodes}</strong></span>
+              <span className="px-2 py-1 rounded-full border border-gray-200 bg-gray-50">
+                Arcs : <strong>{view.summary.nArcs ?? 'non calculé'}</strong>
+                {view.summary.nArcs !== null && (
+                  <span className="text-gray-500"> ({view.summary.nArcsFinite} de capacité finie, {view.summary.nArcsUnlimited} illimités)</span>
+                )}
+              </span>
+              <span className="px-2 py-1 rounded-full border border-gray-200 bg-gray-50">Échelons : <strong>{view.summary.nEchelons ?? 'non calculé'}</strong></span>
+              {view.summary.nIgnored > 0 && (
+                <span className="px-2 py-1 rounded-full border border-amber-300 bg-amber-50 text-amber-900">Nœuds ignorés : <strong>{view.summary.nIgnored}</strong></span>
+              )}
+            </div>
+            {params.temporal.enabled && (
+              <p className="text-[11px] text-indigo-800 bg-indigo-50 border border-indigo-200 rounded px-2 py-1 leading-relaxed">
+                Mode temporel actif : délais et stocks (s, S) pris en compte
+                {view.summary.timing
+                  ? ` — lus dans le fichier : ${view.summary.timing.travelArcs} délai(s) de trajet (jusqu'à ${view.summary.timing.maxTravelDays} j), ${view.summary.timing.leadNodes} délai(s) de production (jusqu'à ${view.summary.timing.maxLeadDays} j), ${view.summary.timing.inventoryNodes} politique(s) inventory.`
+                  : ' — délais par défaut des hypothèses (section 8), aucun délai propre au réseau.'}
+                {' '}Réglages : section 8 des hypothèses.
+              </p>
+            )}
+            {isParametric && (
+              <p className="text-[11px] text-gray-500 leading-relaxed">
+                Les arcs illimités du résumé sont les liaisons entrepôt vers client, qui représentent l'expédition vers le client
+                (limitée par la capacité d'expédition de chaque entrepôt).
+              </p>
+            )}
+          </div>
+
+          {!isParametric && activeReport && (
+            <div className="p-3 bg-white border border-gray-200 rounded-lg space-y-2">
+              <h3 className="text-sm font-bold text-gray-800">Rapport de validation</h3>
+              {activeReport.errors.length === 0 && activeReport.warnings.length === 0 && (
+                <p className="text-xs text-green-800 flex items-center gap-1.5"><CheckCircle2 size={14} /> Aucune erreur ni avertissement.</p>
+              )}
+              {activeReport.errors.length === 0 && activeReport.warnings.length > 0 && (
+                <p className="text-xs text-green-800 flex items-center gap-1.5"><CheckCircle2 size={14} /> Aucune erreur bloquante : le plan peut être lancé.</p>
+              )}
+              {activeReport.warnings.length > 0 && (
+                <div className="p-2.5 bg-amber-50 border border-amber-300 rounded-lg space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                    <TriangleAlert size={14} /> {activeReport.warnings.length} avertissement{activeReport.warnings.length > 1 ? 's' : ''} (non bloquant{activeReport.warnings.length > 1 ? 's' : ''})
+                  </div>
+                  <IssueList issues={activeReport.warnings} tone="warning" />
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-sm font-bold text-gray-800">Schéma par échelons</h3>
+              <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-600">
+                {(Object.keys(NODE_TYPE_COLORS) as NetworkNodeType[])
+                  .filter(t => view.summary.nodesByType.some(x => x.type === t))
+                  .map(t => (
+                    <span key={t} className="inline-flex items-center gap-1">
+                      <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: NODE_TYPE_COLORS[t] }} />{NODE_TYPE_LABELS[t]}
+                    </span>
+                  ))}
+                <span>trait plein : capacité finie · pointillé : illimité</span>
+                <label className="inline-flex items-center gap-1" htmlFor="preview-max-nodes">
+                  Limite d'affichage (nœuds)
+                  <input id="preview-max-nodes" type="number" min={1} step={10} value={previewMaxNodes}
+                    onChange={e => setPreviewMaxNodes(Number(e.target.value))}
+                    className="w-16 px-1.5 py-0.5 rounded border border-gray-300 text-[11px] focus:border-orange-500 outline-none" />
+                </label>
+              </div>
+            </div>
+            {view.diagram ? <NetworkDiagram layout={view.diagram} /> : (
+              <p className="text-xs text-gray-500 italic">{view.diagramNote ?? 'Aucun schéma à afficher.'}</p>
+            )}
           </div>
         </div>
-        {view.diagram ? <NetworkDiagram layout={view.diagram} /> : (
-          <p className="text-xs text-gray-500 italic">{view.diagramNote ?? 'Aucun schéma à afficher.'}</p>
-        )}
-      </div>
+      )}
     </section>
   );
 };
